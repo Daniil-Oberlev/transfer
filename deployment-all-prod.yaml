@@ -1,3 +1,4 @@
+# Финальный манифест для ПРОДа
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -9,201 +10,1631 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: 10Gi
 ---
-apiVersion: v1
-items:
-- apiVersion: apps/v1
-  kind: Deployment
-  metadata:
-    annotations:
-      argocd.argoproj.io/tracking-id: blog-admin:apps/Deployment:default/blog-admin
-      deployment.kubernetes.io/revision: "4"
-      kubectl.kubernetes.io/last-applied-configuration: |
-        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-admin:apps/Deployment:default/blog-admin"},"name":"blog-admin","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"blog-admin"}},"template":{"metadata":{"labels":{"app":"blog-admin"}},"spec":{"containers":[{"image":"chouqe/blog-admin-frontend:latest","imagePullPolicy":"Always","name":"frontend","ports":[{"containerPort":80}]}]}}}}
-    name: blog-admin
-    namespace: default
-  spec:
-    progressDeadlineSeconds: 600
-    replicas: 1
-    revisionHistoryLimit: 10
-    selector:
-      matchLabels:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: blog-admin:apps/Deployment:default/blog-admin
+    deployment.kubernetes.io/revision: "4"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-admin:apps/Deployment:default/blog-admin"},"name":"blog-admin","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"blog-admin"}},"template":{"metadata":{"labels":{"app":"blog-admin"}},"spec":{"containers":[{"image":"chouqe/blog-admin-frontend:latest","imagePullPolicy":"Always","name":"frontend","ports":[{"containerPort":80}]}]}}}}
+  name: blog-admin
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: blog-admin
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-01-10T16:47:42+03:00"
+      labels:
         app: blog-admin
-    strategy:
-      rollingUpdate:
-        maxSurge: 25%
-        maxUnavailable: 25%
-      type: RollingUpdate
-    template:
-      metadata:
-        annotations:
-          kubectl.kubernetes.io/restartedAt: "2026-01-10T16:47:42+03:00"
-        labels:
-          app: blog-admin
-      spec:
-        containers:
-        - image: chouqe/blog-admin-frontend:latest
-          imagePullPolicy: Always
-          name: frontend
-          ports:
-          - containerPort: 80
-            protocol: TCP
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-        dnsPolicy: ClusterFirst
-        restartPolicy: Always
-        schedulerName: default-scheduler
-        securityContext: {}
-        terminationGracePeriodSeconds: 30
-      message: Deployment has minimum availability.
-      reason: MinimumReplicasAvailable
-      deployment.kubernetes.io/revision: "30"
-      kubectl.kubernetes.io/last-applied-configuration: |
-        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:apps/Deployment:default/blog-api"},"name":"blog-api","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"blog-api"}},"template":{"metadata":{"labels":{"app":"blog-api"}},"spec":{"containers":[{"envFrom":[{"configMapRef":{"name":"blog-api-config"}},{"secretRef":{"name":"blog-api-secrets"}}],"image":"chouqe/blog-api-application:latest","livenessProbe":{"httpGet":{"path":"/api/v1/categories/","port":7070},"initialDelaySeconds":15,"periodSeconds":20},"name":"application","ports":[{"containerPort":7070}],"readinessProbe":{"httpGet":{"path":"/api/v1/categories/","port":7070},"initialDelaySeconds":5,"periodSeconds":10},"volumeMounts":[{"mountPath":"/project/logs","name":"logs"}]},{"args":["run","--server.http.listen-addr=0.0.0.0:8989","/etc/alloy/config.alloy"],"image":"grafana/alloy:latest","name":"alloy","volumeMounts":[{"mountPath":"/etc/alloy","name":"alloy-conf"},{"mountPath":"/project/logs","name":"logs"}]}],"volumes":[{"emptyDir":{},"name":"logs"},{"configMap":{"name":"alloy-config-blog"},"name":"alloy-conf"}]}}}}
-    name: blog-api
-    namespace: default
-  spec:
-    progressDeadlineSeconds: 600
-    replicas: 1
-    revisionHistoryLimit: 10
-    selector:
-      matchLabels:
+    spec:
+      containers:
+      - image: chouqe/blog-admin-frontend:latest
+        imagePullPolicy: Always
+        name: frontend
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: blog-api:apps/Deployment:default/blog-api
+    deployment.kubernetes.io/revision: "30"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:apps/Deployment:default/blog-api"},"name":"blog-api","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"blog-api"}},"template":{"metadata":{"labels":{"app":"blog-api"}},"spec":{"containers":[{"envFrom":[{"configMapRef":{"name":"blog-api-config"}},{"secretRef":{"name":"blog-api-secrets"}}],"image":"chouqe/blog-api-application:latest","livenessProbe":{"httpGet":{"path":"/api/v1/categories/","port":7070},"initialDelaySeconds":15,"periodSeconds":20},"name":"application","ports":[{"containerPort":7070}],"readinessProbe":{"httpGet":{"path":"/api/v1/categories/","port":7070},"initialDelaySeconds":5,"periodSeconds":10},"volumeMounts":[{"mountPath":"/project/logs","name":"logs"}]},{"args":["run","--server.http.listen-addr=0.0.0.0:8989","/etc/alloy/config.alloy"],"image":"grafana/alloy:latest","name":"alloy","volumeMounts":[{"mountPath":"/etc/alloy","name":"alloy-conf"},{"mountPath":"/project/logs","name":"logs"}]}],"volumes":[{"emptyDir":{},"name":"logs"},{"configMap":{"name":"alloy-config-blog"},"name":"alloy-conf"}]}}}}
+  name: blog-api
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: blog-api
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-01-20T22:53:01+03:00"
+      labels:
         app: blog-api
-    strategy:
-      rollingUpdate:
-        maxSurge: 25%
-        maxUnavailable: 25%
-      type: RollingUpdate
-    template:
-      metadata:
-        annotations:
-          kubectl.kubernetes.io/restartedAt: "2026-01-20T22:53:01+03:00"
-        labels:
-          app: blog-api
-      spec:
-        containers:
-        - envFrom:
-          - configMapRef:
-              name: blog-api-config
-          - secretRef:
-              name: blog-api-secrets
-          image: chouqe/blog-api-application:latest
-          imagePullPolicy: Always
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /api/v1/categories/
-              port: 7070
-              scheme: HTTP
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            successThreshold: 1
-            timeoutSeconds: 1
-          name: application
-          ports:
-          - containerPort: 7070
-            protocol: TCP
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /api/v1/categories/
-              port: 7070
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 1
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-          volumeMounts:
-          - mountPath: /project/logs
-            name: logs
-        - args:
-          - run
-          - --server.http.listen-addr=0.0.0.0:8989
-          - /etc/alloy/config.alloy
-          image: grafana/alloy:latest
-          imagePullPolicy: Always
-          name: alloy
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-          volumeMounts:
-          - mountPath: /etc/alloy
-            name: alloy-conf
-          - mountPath: /project/logs
-            name: logs
-        dnsPolicy: ClusterFirst
-        restartPolicy: Always
-        schedulerName: default-scheduler
-        securityContext: {}
-        terminationGracePeriodSeconds: 30
-        volumes:
-        - emptyDir: {}
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: blog-api-config
+        - secretRef:
+            name: blog-api-secrets
+        image: chouqe/blog-api-application:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /api/v1/categories/
+            port: 7070
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: application
+        ports:
+        - containerPort: 7070
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /api/v1/categories/
+            port: 7070
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /project/logs
           name: logs
-        - configMap:
-            defaultMode: 420
-            name: alloy-config-blog
+      - args:
+        - run
+        - --server.http.listen-addr=0.0.0.0:8989
+        - /etc/alloy/config.alloy
+        image: grafana/alloy:latest
+        imagePullPolicy: Always
+        name: alloy
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/alloy
           name: alloy-conf
-      message: ReplicaSet "blog-api-7cb6c86cfb" has successfully progressed.
-      reason: NewReplicaSetAvailable
-      deployment.kubernetes.io/revision: "12"
-      kubectl.kubernetes.io/last-applied-configuration: |
-        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/Deployment:default/minio"},"name":"minio","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"minio"}},"template":{"metadata":{"labels":{"app":"minio"}},"spec":{"containers":[{"args":["server","/data","--console-address",":9001"],"env":[{"name":"MINIO_ROOT_USER","value":"minioadmin"},{"name":"MINIO_ROOT_PASSWORD","value":"minio123"},{"name":"MINIO_BROWSER","value":"on"},{"name":"MINIO_CONSOLE_ADDRESS","value":":9001"},{"name":"MINIO_SERVER_URL","value":"https://minio.prof-stankin.ru"}],"image":"minio/minio:latest","name":"minio","ports":[{"containerPort":9000},{"containerPort":9001}],"volumeMounts":[{"mountPath":"/data","name":"minio-data"}]}],"volumes":[{"hostPath":{"path":"/var/lib/minio","type":"DirectoryOrCreate"},"name":"minio-data"}]}}}}
-    name: minio
-    namespace: default
-  spec:
-    progressDeadlineSeconds: 600
-    replicas: 1
-    revisionHistoryLimit: 10
-    selector:
-      matchLabels:
+        - mountPath: /project/logs
+          name: logs
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir: {}
+        name: logs
+      - configMap:
+          defaultMode: 420
+          name: alloy-config-blog
+        name: alloy-conf
+status:
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:apps/Deployment:default/minio
+    deployment.kubernetes.io/revision: "12"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/Deployment:default/minio"},"name":"minio","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"minio"}},"template":{"metadata":{"labels":{"app":"minio"}},"spec":{"containers":[{"args":["server","/data","--console-address",":9001"],"env":[{"name":"MINIO_ROOT_USER","value":"minioadmin"},{"name":"MINIO_ROOT_PASSWORD","value":"minio123"},{"name":"MINIO_BROWSER","value":"on"},{"name":"MINIO_CONSOLE_ADDRESS","value":":9001"},{"name":"MINIO_SERVER_URL","value":"https://minio.prof-stankin.ru"}],"image":"minio/minio:latest","name":"minio","ports":[{"containerPort":9000},{"containerPort":9001}],"volumeMounts":[{"mountPath":"/data","name":"minio-data"}]}],"volumes":[{"hostPath":{"path":"/var/lib/minio","type":"DirectoryOrCreate"},"name":"minio-data"}]}}}}
+  name: minio
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: minio
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-01-18T18:37:06+03:00"
+      labels:
         app: minio
-    strategy:
-      rollingUpdate:
-        maxSurge: 25%
-        maxUnavailable: 25%
-      type: RollingUpdate
-    template:
-      metadata:
-        annotations:
-          kubectl.kubernetes.io/restartedAt: "2026-01-18T18:37:06+03:00"
-        labels:
-          app: minio
-      spec:
-        containers:
-        - args:
-          - server
-          - /data
-          - --console-address
-          - :9001
-          env:
-          - name: MINIO_ROOT_USER
-            value: minioadmin
-          - name: MINIO_ROOT_PASSWORD
-            value: minio123
-          - name: MINIO_BROWSER
-            value: "on"
-          - name: MINIO_CONSOLE_ADDRESS
-            value: :9001
-          - name: MINIO_SERVER_URL
-            value: https://minio.prof-stankin.ru
-          image: minio/minio:latest
-          imagePullPolicy: Always
-          name: minio
-          ports:
-          - containerPort: 9000
-            protocol: TCP
-          - containerPort: 9001
-            protocol: TCP
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-          volumeMounts:
-          - mountPath: /data
-      - name: minio-data
+    spec:
+      containers:
+      - args:
+        - server
+        - /data
+        - --console-address
+        - :9001
+        env:
+        - name: MINIO_ROOT_USER
+          value: minioadmin
+        - name: MINIO_ROOT_PASSWORD
+          value: minio123
+        - name: MINIO_BROWSER
+          value: "on"
+        - name: MINIO_CONSOLE_ADDRESS
+          value: :9001
+        - name: MINIO_SERVER_URL
+          value: https://minio.prof-stankin.ru
+        image: minio/minio:latest
+        imagePullPolicy: Always
+        name: minio
+        ports:
+        - containerPort: 9000
+          protocol: TCP
+        - containerPort: 9001
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: minio-data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
         persistentVolumeClaim:
           claimName: minio-pvc
+        name: minio-data
+status:
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: personal-app:apps/Deployment:default/personal-app
+    deployment.kubernetes.io/revision: "10"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"personal-app:apps/Deployment:default/personal-app"},"name":"personal-app","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"personal-app"}},"template":{"metadata":{"labels":{"app":"personal-app"}},"spec":{"containers":[{"envFrom":[{"configMapRef":{"name":"personal-app-config"}},{"secretRef":{"name":"personal-app-secrets"}}],"image":"chouqe/personal-app:latest","name":"app","ports":[{"containerPort":8080}]}]}}}}
+  name: personal-app
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: personal-app
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-01-20T22:31:00+03:00"
+      labels:
+        app: personal-app
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: personal-app-config
+        - secretRef:
+            name: personal-app-secrets
+        image: chouqe/personal-app:latest
+        imagePullPolicy: Always
+        name: app
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: prof-assistant2:apps/Deployment:default/prof-assistant2
+    deployment.kubernetes.io/revision: "4"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-assistant2:apps/Deployment:default/prof-assistant2"},"name":"prof-assistant2","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"prof-assistant2"}},"template":{"metadata":{"labels":{"app":"prof-assistant2"}},"spec":{"containers":[{"envFrom":[{"configMapRef":{"name":"prof-bot-config"}},{"secretRef":{"name":"prof-bot-secrets"}}],"image":"chouqe/prof-assistant2:latest","name":"bot","volumeMounts":[{"mountPath":"/project/logs","name":"logs"}]},{"args":["run","--server.http.listen-addr=0.0.0.0:12345","/etc/alloy/config.alloy"],"image":"grafana/alloy:latest","name":"alloy","volumeMounts":[{"mountPath":"/etc/alloy","name":"alloy-conf"},{"mountPath":"/project/logs","name":"logs"}]}],"volumes":[{"emptyDir":{},"name":"logs"},{"configMap":{"name":"alloy-config-bot"},"name":"alloy-conf"}]}}}}
+  name: prof-assistant2
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: prof-assistant2
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-01-20T22:19:04+03:00"
+      labels:
+        app: prof-assistant2
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: prof-bot-config
+        - secretRef:
+            name: prof-bot-secrets
+        image: chouqe/prof-assistant2:latest
+        imagePullPolicy: Always
+        name: bot
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /project/logs
+          name: logs
+      - args:
+        - run
+        - --server.http.listen-addr=0.0.0.0:12345
+        - /etc/alloy/config.alloy
+        image: grafana/alloy:latest
+        imagePullPolicy: Always
+        name: alloy
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/alloy
+          name: alloy-conf
+        - mountPath: /project/logs
+          name: logs
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir: {}
+        name: logs
+      - configMap:
+          defaultMode: 420
+          name: alloy-config-bot
+        name: alloy-conf
+status:
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: prof-front:apps/Deployment:default/profstankin-front
+    deployment.kubernetes.io/revision: "10"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-front:apps/Deployment:default/profstankin-front"},"name":"profstankin-front","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"profstankin-front"}},"template":{"metadata":{"labels":{"app":"profstankin-front"}},"spec":{"containers":[{"env":[{"name":"VITE_SERVER_API","value":"https://api.prof-stankin.ru"}],"image":"chouqe/profstankin-front:4e96d7d","name":"frontend","ports":[{"containerPort":80}]}]}}}}
+  name: profstankin-front
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: profstankin-front
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-01-06T17:43:38+03:00"
+      labels:
+        app: profstankin-front
+    spec:
+      containers:
+      - env:
+        - name: VITE_SERVER_API
+          value: https://api.prof-stankin.ru
+        image: chouqe/profstankin-front:4e96d7d
+        imagePullPolicy: Always
+        name: frontend
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:apps/Deployment:default/redis-prof-assistant
+    deployment.kubernetes.io/revision: "2"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/Deployment:default/redis-prof-assistant"},"name":"redis-prof-assistant","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"redis-prof-assistant"}},"template":{"metadata":{"labels":{"app":"redis-prof-assistant"}},"spec":{"containers":[{"image":"redis:7","name":"redis","ports":[{"containerPort":6379}]}]}}}}
+  name: redis-prof-assistant
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: redis-prof-assistant
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-01-06T17:43:38+03:00"
+      labels:
+        app: redis-prof-assistant
+    spec:
+      containers:
+      - image: redis:7
+        imagePullPolicy: IfNotPresent
+        name: redis
+        ports:
+        - containerPort: 6379
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:apps/Deployment:default/redis-schedule-api
+    deployment.kubernetes.io/revision: "3"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/Deployment:default/redis-schedule-api"},"name":"redis-schedule-api","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"redis-schedule-api"}},"template":{"metadata":{"labels":{"app":"redis-schedule-api"}},"spec":{"containers":[{"image":"redis:7","name":"redis","ports":[{"containerPort":6379}]}]}}}}
+  name: redis-schedule-api
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: redis-schedule-api
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-01-16T00:29:42+03:00"
+      labels:
+        app: redis-schedule-api
+    spec:
+      containers:
+      - image: redis:7
+        imagePullPolicy: IfNotPresent
+        name: redis
+        ports:
+        - containerPort: 6379
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: schedule-api:apps/Deployment:default/schedule-api
+    deployment.kubernetes.io/revision: "3"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"schedule-api:apps/Deployment:default/schedule-api"},"name":"schedule-api","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"schedule-api"}},"template":{"metadata":{"labels":{"app":"schedule-api"}},"spec":{"containers":[{"envFrom":[{"configMapRef":{"name":"schedule-api-config"}},{"secretRef":{"name":"schedule-api-secrets"}}],"image":"chouqe/schedule-api:latest","name":"api","ports":[{"containerPort":7070}]}]}}}}
+  name: schedule-api
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: schedule-api
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-01-19T23:56:52+03:00"
+      labels:
+        app: schedule-api
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: schedule-api-config
+        - secretRef:
+            name: schedule-api-secrets
+        image: chouqe/schedule-api:latest
+        imagePullPolicy: Always
+        name: api
+        ports:
+        - containerPort: 7070
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:apps/StatefulSet:default/postgres-personal
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"StatefulSet","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/StatefulSet:default/postgres-personal"},"name":"postgres-personal","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"postgres-personal"}},"serviceName":"postgres-personal","template":{"metadata":{"labels":{"app":"postgres-personal"}},"spec":{"containers":[{"env":[{"name":"POSTGRES_PASSWORD","value":"pass"},{"name":"POSTGRES_USER","value":"user"},{"name":"POSTGRES_DB","value":"postgres"}],"image":"postgres:15","name":"postgres","ports":[{"containerPort":5432}],"volumeMounts":[{"mountPath":"/var/lib/postgresql/data","name":"data"}]}]}},"volumeClaimTemplates":[{"metadata":{"name":"data"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"2Gi"}}}}]}}
+  name: postgres-personal
+  namespace: default
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: postgres-personal
+  serviceName: postgres-personal
+  template:
+    metadata:
+      labels:
+        app: postgres-personal
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_PASSWORD
+          value: pass
+        - name: POSTGRES_USER
+          value: user
+        - name: POSTGRES_DB
+          value: postgres
+        image: postgres:15
+        imagePullPolicy: IfNotPresent
+        name: postgres
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+      volumeMode: Filesystem
+status:
+  availableReplicas: 1
+  collisionCount: 0
+  currentReplicas: 1
+  currentRevision: postgres-personal-58f9795c9
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updateRevision: postgres-personal-58f9795c9
+  updatedReplicas: 1
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:apps/StatefulSet:default/postgres-prof-assistant
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"StatefulSet","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/StatefulSet:default/postgres-prof-assistant"},"name":"postgres-prof-assistant","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"postgres-prof-assistant"}},"serviceName":"postgres-prof-assistant","template":{"metadata":{"labels":{"app":"postgres-prof-assistant"}},"spec":{"containers":[{"env":[{"name":"POSTGRES_PASSWORD","value":"pass"},{"name":"POSTGRES_USER","value":"user"},{"name":"POSTGRES_DB","value":"postgres"}],"image":"postgres:15","name":"postgres","ports":[{"containerPort":5432}],"volumeMounts":[{"mountPath":"/var/lib/postgresql/data","name":"data"}]}]}},"volumeClaimTemplates":[{"metadata":{"name":"data"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"2Gi"}}}}]}}
+  name: postgres-prof-assistant
+  namespace: default
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: postgres-prof-assistant
+  serviceName: postgres-prof-assistant
+  template:
+    metadata:
+      labels:
+        app: postgres-prof-assistant
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_PASSWORD
+          value: pass
+        - name: POSTGRES_USER
+          value: user
+        - name: POSTGRES_DB
+          value: postgres
+        image: postgres:15
+        imagePullPolicy: IfNotPresent
+        name: postgres
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+      volumeMode: Filesystem
+status:
+  availableReplicas: 1
+  collisionCount: 0
+  currentReplicas: 1
+  currentRevision: postgres-prof-assistant-79c4f8f56f
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updateRevision: postgres-prof-assistant-79c4f8f56f
+  updatedReplicas: 1
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:apps/StatefulSet:default/postgres-schedule-api
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"StatefulSet","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/StatefulSet:default/postgres-schedule-api"},"name":"postgres-schedule-api","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"postgres-schedule-api"}},"serviceName":"postgres-schedule-api","template":{"metadata":{"labels":{"app":"postgres-schedule-api"}},"spec":{"containers":[{"env":[{"name":"POSTGRES_PASSWORD","value":"pass"},{"name":"POSTGRES_USER","value":"user"},{"name":"POSTGRES_DB","value":"postgres"}],"image":"postgres:15","name":"postgres","ports":[{"containerPort":5432}],"volumeMounts":[{"mountPath":"/var/lib/postgresql/data","name":"data"}]}]}},"volumeClaimTemplates":[{"metadata":{"name":"data"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"2Gi"}}}}]}}
+  name: postgres-schedule-api
+  namespace: default
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: postgres-schedule-api
+  serviceName: postgres-schedule-api
+  template:
+    metadata:
+      labels:
+        app: postgres-schedule-api
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_PASSWORD
+          value: pass
+        - name: POSTGRES_USER
+          value: user
+        - name: POSTGRES_DB
+          value: postgres
+        image: postgres:15
+        imagePullPolicy: IfNotPresent
+        name: postgres
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+      volumeMode: Filesystem
+status:
+  availableReplicas: 1
+  collisionCount: 0
+  currentReplicas: 1
+  currentRevision: postgres-schedule-api-5b88dfdc47
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updateRevision: postgres-schedule-api-5b88dfdc47
+  updatedReplicas: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: blog-admin:/Service:default/blog-admin-svc
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-admin:/Service:default/blog-admin-svc"},"name":"blog-admin-svc","namespace":"default"},"spec":{"ports":[{"port":80,"targetPort":80}],"selector":{"app":"blog-admin"}}}
+  name: blog-admin-svc
+  namespace: default
+spec:
+  clusterIP: 10.43.143.122
+  clusterIPs:
+  - 10.43.143.122
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: blog-admin
+  sessionAffinity: None
+  type: ClusterIP
+status:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: blog-api:/Service:default/blog-api-svc
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:/Service:default/blog-api-svc"},"name":"blog-api-svc","namespace":"default"},"spec":{"ports":[{"port":80,"targetPort":7070}],"selector":{"app":"blog-api"}}}
+  name: blog-api-svc
+  namespace: default
+spec:
+  clusterIP: 10.43.172.194
+  clusterIPs:
+  - 10.43.172.194
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 7070
+  selector:
+    app: blog-api
+  sessionAffinity: None
+  type: ClusterIP
+status:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:/Service:default/minio
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:/Service:default/minio"},"name":"minio","namespace":"default"},"spec":{"ports":[{"name":"api","port":9000,"targetPort":9000},{"name":"console","port":9001,"targetPort":9001}],"selector":{"app":"minio"}}}
+  name: minio
+  namespace: default
+spec:
+  clusterIP: 10.43.134.174
+  clusterIPs:
+  - 10.43.134.174
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: api
+    port: 9000
+    protocol: TCP
+    targetPort: 9000
+  - name: console
+    port: 9001
+    protocol: TCP
+    targetPort: 9001
+  selector:
+    app: minio
+  sessionAffinity: None
+  type: ClusterIP
+status:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: personal-app:/Service:default/personal-app
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"personal-app:/Service:default/personal-app"},"name":"personal-app","namespace":"default"},"spec":{"ports":[{"port":80,"targetPort":8080}],"selector":{"app":"personal-app"}}}
+  name: personal-app
+  namespace: default
+spec:
+  clusterIP: 10.43.18.89
+  clusterIPs:
+  - 10.43.18.89
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: personal-app
+  sessionAffinity: None
+  type: ClusterIP
+status:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:/Service:default/postgres-personal
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:/Service:default/postgres-personal"},"name":"postgres-personal","namespace":"default"},"spec":{"ports":[{"port":5432}],"selector":{"app":"postgres-personal"}}}
+  name: postgres-personal
+  namespace: default
+spec:
+  clusterIP: 10.43.148.165
+  clusterIPs:
+  - 10.43.148.165
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    app: postgres-personal
+  sessionAffinity: None
+  type: ClusterIP
+status:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:/Service:default/postgres-prof-assistant
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:/Service:default/postgres-prof-assistant"},"name":"postgres-prof-assistant","namespace":"default"},"spec":{"ports":[{"port":5432}],"selector":{"app":"postgres-prof-assistant"}}}
+  name: postgres-prof-assistant
+  namespace: default
+spec:
+  clusterIP: 10.43.81.10
+  clusterIPs:
+  - 10.43.81.10
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    app: postgres-prof-assistant
+  sessionAffinity: None
+  type: ClusterIP
+status:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:/Service:default/postgres-schedule-api
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:/Service:default/postgres-schedule-api"},"name":"postgres-schedule-api","namespace":"default"},"spec":{"ports":[{"port":5432}],"selector":{"app":"postgres-schedule-api"}}}
+  name: postgres-schedule-api
+  namespace: default
+spec:
+  clusterIP: 10.43.179.149
+  clusterIPs:
+  - 10.43.179.149
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    app: postgres-schedule-api
+  sessionAffinity: None
+  type: ClusterIP
+status:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: prof-front:/Service:default/profstankin-front-svc
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-front:/Service:default/profstankin-front-svc"},"name":"profstankin-front-svc","namespace":"default"},"spec":{"ports":[{"port":80,"targetPort":80}],"selector":{"app":"profstankin-front"}}}
+  name: profstankin-front-svc
+  namespace: default
+spec:
+  clusterIP: 10.43.154.81
+  clusterIPs:
+  - 10.43.154.81
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: profstankin-front
+  sessionAffinity: None
+  type: ClusterIP
+status:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:/Service:default/redis-prof-assistant
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:/Service:default/redis-prof-assistant"},"name":"redis-prof-assistant","namespace":"default"},"spec":{"ports":[{"port":6379}],"selector":{"app":"redis-prof-assistant"}}}
+  name: redis-prof-assistant
+  namespace: default
+spec:
+  clusterIP: 10.43.49.146
+  clusterIPs:
+  - 10.43.49.146
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 6379
+    protocol: TCP
+    targetPort: 6379
+  selector:
+    app: redis-prof-assistant
+  sessionAffinity: None
+  type: ClusterIP
+status:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:/Service:default/redis-schedule-api
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:/Service:default/redis-schedule-api"},"name":"redis-schedule-api","namespace":"default"},"spec":{"ports":[{"port":6379}],"selector":{"app":"redis-schedule-api"}}}
+  name: redis-schedule-api
+  namespace: default
+spec:
+  clusterIP: 10.43.152.49
+  clusterIPs:
+  - 10.43.152.49
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 6379
+    protocol: TCP
+    targetPort: 6379
+  selector:
+    app: redis-schedule-api
+  sessionAffinity: None
+  type: ClusterIP
+status:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: schedule-api:/Service:default/schedule-api-svc
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"schedule-api:/Service:default/schedule-api-svc"},"name":"schedule-api-svc","namespace":"default"},"spec":{"ports":[{"port":80,"targetPort":7070}],"selector":{"app":"schedule-api"}}}
+  name: schedule-api-svc
+  namespace: default
+spec:
+  clusterIP: 10.43.75.254
+  clusterIPs:
+  - 10.43.75.254
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 7070
+  selector:
+    app: schedule-api
+  sessionAffinity: None
+  type: ClusterIP
+status:
+---
+apiVersion: v1
+data:
+  config.alloy: |
+    logging {
+      level  = "info"
+      format = "logfmt"
+    }
+    loki.write "local" {
+      endpoint {
+        url = "http://loki:3100/loki/api/v1/push"
+      }
+    }
+    local.file_match "logs" {
+      path_targets = [{"__address__" = "localhost", "filename" = "/project/logs/*.json"}]
+    }
+    loki.source.file "blog_logs" {
+      targets    = local.file_match.logs.targets
+      forward_to = [loki.write.local.receiver]
+    }
+kind: ConfigMap
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: blog-api:/ConfigMap:default/alloy-config-blog
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"config.alloy":"logging {\n  level  = \"info\"\n  format = \"logfmt\"\n}\nloki.write \"local\" {\n  endpoint {\n    url = \"http://loki:3100/loki/api/v1/push\"\n  }\n}\nlocal.file_match \"logs\" {\n  path_targets = [{\"__address__\" = \"localhost\", \"filename\" = \"/project/logs/*.json\"}]\n}\nloki.source.file \"blog_logs\" {\n  targets    = local.file_match.logs.targets\n  forward_to = [loki.write.local.receiver]\n}\n"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:/ConfigMap:default/alloy-config-blog"},"name":"alloy-config-blog","namespace":"default"}}
+  name: alloy-config-blog
+  namespace: default
+---
+apiVersion: v1
+data:
+  config.alloy: |
+    logging {
+      level  = "info"
+      format = "logfmt"
+    }
+    loki.write "local" {
+      endpoint {
+        url = "http://loki:3100/loki/api/v1/push"
+      }
+    }
+    local.file_match "logs" {
+      path_targets = [{"__address__" = "localhost", "filename" = "/project/logs/*.json"}]
+    }
+    loki.source.file "bot_logs" {
+      targets    = local.file_match.logs.targets
+      forward_to = [loki.write.local.receiver]
+    }
+kind: ConfigMap
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: prof-assistant2:/ConfigMap:default/alloy-config-bot
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"config.alloy":"logging {\n  level  = \"info\"\n  format = \"logfmt\"\n}\nloki.write \"local\" {\n  endpoint {\n    url = \"http://loki:3100/loki/api/v1/push\"\n  }\n}\nlocal.file_match \"logs\" {\n  path_targets = [{\"__address__\" = \"localhost\", \"filename\" = \"/project/logs/*.json\"}]\n}\nloki.source.file \"bot_logs\" {\n  targets    = local.file_match.logs.targets\n  forward_to = [loki.write.local.receiver]\n}\n"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-assistant2:/ConfigMap:default/alloy-config-bot"},"name":"alloy-config-bot","namespace":"default"}}
+  name: alloy-config-bot
+  namespace: default
+---
+apiVersion: v1
+data:
+  CORS_DOMAIN: https://admin.prof-stankin.ru,https://api-blog.prof-stankin.ru
+  INSPECT_TOKEN_URL: http://schedule-api-svc/api/v1/auth/inspect_token
+  JWT_ALGORITHM: HS256
+  JWT_SECRET_KEY: '!secret'
+  MINIO_ACCESS_KEY: minioadmin
+  MINIO_BASE_URL: https://minio.prof-stankin.ru
+  MINIO_BUCKET_NAME: blog-images
+  MINIO_ENDPOINT: minio.prof-stankin.ru
+  MINIO_SECRET_KEY: minio123
+  MINIO_SECURE: "True"
+  POSTGRES_DB: postgres
+  POSTGRES_HOST: postgres-prof-assistant
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: user
+  SERVICE_NAME: blog_api
+kind: ConfigMap
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: blog-api:/ConfigMap:default/blog-api-config
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"CORS_DOMAIN":"https://admin.prof-stankin.ru,https://api-blog.prof-stankin.ru","INSPECT_TOKEN_URL":"http://schedule-api-svc/api/v1/auth/inspect_token","JWT_ALGORITHM":"HS256","MINIO_ACCESS_KEY":"minioadmin","MINIO_BASE_URL":"https://minio.prof-stankin.ru","MINIO_BUCKET_NAME":"blog-images","MINIO_ENDPOINT":"minio.prof-stankin.ru","MINIO_SECRET_KEY":"minio123","MINIO_SECURE":"True","POSTGRES_DB":"postgres","POSTGRES_HOST":"postgres-prof-assistant","POSTGRES_PORT":"5432","POSTGRES_USER":"user","SERVICE_NAME":"blog_api"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:/ConfigMap:default/blog-api-config"},"name":"blog-api-config","namespace":"default"}}
+  name: blog-api-config
+  namespace: default
+---
+apiVersion: v1
+data:
+  ca.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIBdjCCAR2gAwIBAgIBADAKBggqhkjOPQQDAjAjMSEwHwYDVQQDDBhrM3Mtc2Vy
+    dmVyLWNhQDE3Njc1MzYxMTQwHhcNMjYwMTA0MTQxNTE0WhcNMzYwMTAyMTQxNTE0
+    WjAjMSEwHwYDVQQDDBhrM3Mtc2VydmVyLWNhQDE3Njc1MzYxMTQwWTATBgcqhkjO
+    PQIBBggqhkjOPQMBBwNCAAToQMNpnDbEF3RACKQ1QU6/lquWCjjEFsIcdI2mKANp
+    ITuJQmn2n+rX9irF2zBvsUao+7tVjNsQwWlW+AabsSd4o0IwQDAOBgNVHQ8BAf8E
+    BAMCAqQwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUZfMdvVAiU2MYwicQG90M
+    4f5KAWUwCgYIKoZIzj0EAwIDRwAwRAIgIW0g74Qcwf41n8SOTYrKqS5pILMNEIgM
+    GXERmZjCnY8CIEUwk51s/Jnza6jpAo2Dngwa9L3xi1bjJvq5/9bcQs8n
+    -----END CERTIFICATE-----
+kind: ConfigMap
+metadata:
+  annotations:
+    kubernetes.io/description: Contains a CA bundle that can be used to verify the
+      kube-apiserver when using internal endpoints such as the internal service IP
+      or kubernetes.default.svc. No other usage is guaranteed across distributions
+      of Kubernetes clusters.
+  name: kube-root-ca.crt
+  namespace: default
+---
+apiVersion: v1
+data:
+  API_COOKIE_PATH: /
+  API_COOKIE_SECURE: "false"
+  API_CORS_ORIGINS: https://personal.prof-stankin.ru,https://admin.prof-stankin.ru
+  AUTH_ALGORITHM: HS256
+  AUTH_REFRESH_TOKEN_EXPIRATION_TIME: "30"
+  AUTH_TOKEN_EXPIRATION_TIME: "60"
+  POSTGRES_DATABASE: postgres
+  POSTGRES_HOST: postgres-personal
+  POSTGRES_MIGRATIONS_DIR: migrations
+  POSTGRES_PORT: "5432"
+  POSTGRES_SSLMODE: disable
+  POSTGRES_USER: user
+  S3_BASE_URL: https://minio.prof-stankin.ru
+  S3_BUCKET_NAME: personal-images
+  S3_ENDPOINT: minio:9000
+  S3_SECURE: "false"
+  SERVER_HOST: 0.0.0.0
+  SERVER_PORT: "8080"
+kind: ConfigMap
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: personal-app:/ConfigMap:default/personal-app-config
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"API_COOKIE_PATH":"/","API_COOKIE_SECURE":"false","API_CORS_ORIGINS":"https://personal.prof-stankin.ru,https://admin.prof-stankin.ru","AUTH_ALGORITHM":"HS256","AUTH_REFRESH_TOKEN_EXPIRATION_TIME":"30","AUTH_TOKEN_EXPIRATION_TIME":"60","POSTGRES_DATABASE":"postgres","POSTGRES_HOST":"postgres-personal","POSTGRES_MIGRATIONS_DIR":"migrations","POSTGRES_PORT":"5432","POSTGRES_SSLMODE":"disable","POSTGRES_USER":"user","S3_BASE_URL":"https://minio.prof-stankin.ru","S3_BUCKET_NAME":"personal-images","S3_ENDPOINT":"minio:9000","S3_SECURE":"false","SERVER_HOST":"0.0.0.0","SERVER_PORT":"8080"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"personal-app:/ConfigMap:default/personal-app-config"},"name":"personal-app-config","namespace":"default"}}
+  name: personal-app-config
+  namespace: default
+---
+apiVersion: v1
+data:
+  ALLOWED_CHANNEL_ID: "-1003468348519"
+  POSTGRES_DB: postgres
+  POSTGRES_HOST: postgres-prof-assistant
+  POSTGRES_PASSWORD: pass
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: user
+  REDIS_HOST: redis-prof-assistant
+  REDIS_PORT: "6379"
+  SCHEDULE_API_URL: http://schedule-api-svc:80
+kind: ConfigMap
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: prof-assistant2:/ConfigMap:default/prof-bot-config
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"ALLOWED_CHANNEL_ID":"-1003468348519","POSTGRES_DB":"postgres","POSTGRES_HOST":"postgres-prof-assistant","POSTGRES_PASSWORD":"pass","POSTGRES_PORT":"5432","POSTGRES_USER":"user","REDIS_HOST":"redis-prof-assistant","REDIS_PORT":"6379","SCHEDULE_API_URL":"http://schedule-api-svc:80"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-assistant2:/ConfigMap:default/prof-bot-config"},"name":"prof-bot-config","namespace":"default"}}
+  name: prof-bot-config
+  namespace: default
+---
+apiVersion: v1
+data:
+  ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+  ALGORITHM: HS256
+  CORS_ORIGINS: https://prof-stankin.ru,https://admin.prof-stankin.ru
+  DEBUG: "False"
+  EOS_SCHEDULE_CHECK_TIME: "03:00"
+  EOS_URL: https://edu.stankin.ru
+  POSTGRES_DB: postgres
+  POSTGRES_HOST: postgres-schedule-api
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: user
+  PYTHONPATH: /project/app
+  REDIS_DB: "0"
+  REDIS_HOST: redis-schedule-api
+  REDIS_PORT: "6379"
+kind: ConfigMap
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: schedule-api:/ConfigMap:default/schedule-api-config
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"ACCESS_TOKEN_EXPIRE_MINUTES":"60","ALGORITHM":"HS256","DEBUG":"False","EOS_SCHEDULE_CHECK_TIME":"03:00","EOS_URL":"https://edu.stankin.ru","POSTGRES_DB":"postgres","POSTGRES_HOST":"postgres-schedule-api","POSTGRES_PORT":"5432","POSTGRES_USER":"user","PYTHONPATH":"/project/app","REDIS_DB":"0","REDIS_HOST":"redis-schedule-api","REDIS_PORT":"6379"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"schedule-api:/ConfigMap:default/schedule-api-config"},"name":"schedule-api-config","namespace":"default"}}
+  name: schedule-api-config
+  namespace: default
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: blog-admin:networking.k8s.io/Ingress:default/blog-admin-ingress
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-admin:networking.k8s.io/Ingress:default/blog-admin-ingress","cert-manager.io/cluster-issuer":"letsencrypt-prod","kubernetes.io/ingress.class":"traefik"},"name":"blog-admin-ingress","namespace":"default"},"spec":{"ingressClassName":"traefik","rules":[{"host":"admin.prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"blog-admin-svc","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["admin.prof-stankin.ru"],"secretName":"blog-admin-tls"}]}}
+    kubernetes.io/ingress.class: traefik
+    updated-at: "1767711423"
+  name: blog-admin-ingress
+  namespace: default
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: admin.prof-stankin.ru
+    http:
+      paths:
+      - backend:
+          service:
+            name: blog-admin-svc
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - admin.prof-stankin.ru
+    secretName: blog-admin-tls
+status:
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: blog-api:networking.k8s.io/Ingress:default/blog-api-ingress
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:networking.k8s.io/Ingress:default/blog-api-ingress","cert-manager.io/cluster-issuer":"letsencrypt-prod","kubernetes.io/ingress.class":"traefik","traefik.ingress.kubernetes.io/router.middlewares":"default-blog-api-cors@kubernetescrd","traefik.ingress.kubernetes.io/service.serversscheme":"http"},"name":"blog-api-ingress","namespace":"default"},"spec":{"ingressClassName":"traefik","rules":[{"host":"api-blog.prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"blog-api-svc","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["api-blog.prof-stankin.ru"],"secretName":"blog-api-tls"}]}}
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.middlewares: default-blog-api-cors@kubernetescrd
+    traefik.ingress.kubernetes.io/service.serversscheme: http
+  name: blog-api-ingress
+  namespace: default
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: api-blog.prof-stankin.ru
+    http:
+      paths:
+      - backend:
+          service:
+            name: blog-api-svc
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - api-blog.prof-stankin.ru
+    secretName: blog-api-tls
+status:
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: infrastructure-apps:networking.k8s.io/Ingress:default/minio-api-ingress
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:networking.k8s.io/Ingress:default/minio-api-ingress","cert-manager.io/cluster-issuer":"letsencrypt-prod","kubernetes.io/ingress.class":"traefik"},"name":"minio-api-ingress","namespace":"default"},"spec":{"ingressClassName":"traefik","rules":[{"host":"minio.prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"minio","port":{"number":9000}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["minio.prof-stankin.ru"],"secretName":"minio-api-tls-prod"}]}}
+    kubernetes.io/ingress.class: traefik
+  name: minio-api-ingress
+  namespace: default
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: minio.prof-stankin.ru
+    http:
+      paths:
+      - backend:
+          service:
+            name: minio
+            port:
+              number: 9000
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - minio.prof-stankin.ru
+    secretName: minio-api-tls-prod
+status:
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: personal-app:networking.k8s.io/Ingress:default/personal-app
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"personal-app:networking.k8s.io/Ingress:default/personal-app","cert-manager.io/cluster-issuer":"letsencrypt-prod","traefik.ingress.kubernetes.io/router.entrypoints":"websecure","traefik.ingress.kubernetes.io/router.middlewares":"default-blog-api-cors@kubernetescrd","traefik.ingress.kubernetes.io/router.tls":"true"},"name":"personal-app","namespace":"default"},"spec":{"rules":[{"host":"api-personal.prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"personal-app","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["api-personal.prof-stankin.ru"],"secretName":"personal-app-tls"}]}}
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.middlewares: default-blog-api-cors@kubernetescrd
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  name: personal-app
+  namespace: default
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: api-personal.prof-stankin.ru
+    http:
+      paths:
+      - backend:
+          service:
+            name: personal-app
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - api-personal.prof-stankin.ru
+    secretName: personal-app-tls
+status:
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: prof-front:networking.k8s.io/Ingress:default/profstankin-ingress
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-front:networking.k8s.io/Ingress:default/profstankin-ingress","cert-manager.io/cluster-issuer":"letsencrypt-prod","kubernetes.io/ingress.class":"traefik"},"name":"profstankin-ingress","namespace":"default"},"spec":{"ingressClassName":"traefik","rules":[{"host":"prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"profstankin-front-svc","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["prof-stankin.ru"],"secretName":"profstankin-tls"}]}}
+    kubernetes.io/ingress.class: traefik
+  name: profstankin-ingress
+  namespace: default
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: prof-stankin.ru
+    http:
+      paths:
+      - backend:
+          service:
+            name: profstankin-front-svc
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - prof-stankin.ru
+    secretName: profstankin-tls
+status:
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: schedule-api:networking.k8s.io/Ingress:default/schedule-api-ingress
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"schedule-api:networking.k8s.io/Ingress:default/schedule-api-ingress","cert-manager.io/cluster-issuer":"selfsigned-issuer","kubernetes.io/ingress.class":"traefik"},"name":"schedule-api-ingress","namespace":"default"},"spec":{"ingressClassName":"traefik","rules":[{"host":"api.prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"schedule-api-svc","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["api.prof-stankin.ru"],"secretName":"schedule-api-tls"}]}}
+    kubernetes.io/ingress.class: traefik
+  name: schedule-api-ingress
+  namespace: default
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: api.prof-stankin.ru
+    http:
+      paths:
+      - backend:
+          service:
+            name: schedule-api-svc
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - api.prof-stankin.ru
+    secretName: schedule-api-tls
+status:
+---
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZHakNDQkFLZ0F3SUJBZ0lTQnBGSjhSRFNNRFEwa0c4NkdNbXpVdE9vTUEwR0NTcUdTSWIzRFFFQkN3VUEKTURNeEN6QUpCZ05WQkFZVEFsVlRNUll3RkFZRFZRUUtFdzFNWlhRbmN5QkZibU55ZVhCME1Rd3dDZ1lEVlFRRApFd05TTVRJd0hoY05Nall3TVRBM01URTFNVEUzV2hjTk1qWXdOREEzTVRFMU1URTJXakFsTVNNd0lRWURWUVFECkV4cGhaRzFwYmk1MFpYTjBMbkJ5YjJZdGMzUmhibXRwYmk1eWRUQ0NBU0l3RFFZSktvWklodmNOQVFFQkJRQUQKZ2dFUEFEQ0NBUW9DZ2dFQkFOQ015SVNaSFJET1FDMHZNbFNBU2lrTEowQWQ4Yk5HaERIRzFlYXd2QU1CYUY1QwpxQjNyL0gvMTh4dmwzR2NsWnpWazNDWlVrd2FMaGxLelJjc1FjcEJzODl5TzlaanNPejNKMHB4ZWtQVWJBM0RQCnh2NEI0b3daZFBjeG1nQjQyc210YlQ1MVk5djcrK1Z5ZkQxSWcvby9SbWs4cFFhS2hrekdCa2xOQ2ExNjJ6aTEKWFpyN09WU3dEWjB2Sy9tTmhZK1NkUWtpRjVrSm9icVZlUDRXazU3WHlucjdRV0VBWUErL21oSGZwR0U1c1VHZQpGRFQyOG1zWHJQYUJldFlGMTZzaGRHaHM1VGpsbXBHeUxpR1UwWDBia29SczNRalIxT3Zhd1VZMjlHcy85QlJUCmx5VzhubVkwV2RTSXA5TG8wUTluaHJTNGF6Z2FqWmNRd2hHZVRvTUNBd0VBQWFPQ0FqUXdnZ0l3TUE0R0ExVWQKRHdFQi93UUVBd0lGb0RBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjREFRWUlLd1lCQlFVSEF3SXdEQVlEVlIwVApBUUgvQkFJd0FEQWRCZ05WSFE0RUZnUVVVdHl5V25ZVUM2dUdES2V6NmN3aW0xL1V5REl3SHdZRFZSMGpCQmd3CkZvQVVBTFVwOGkyT2J6SG9tMHl0ZUQ3NjNPa00wZEl3TXdZSUt3WUJCUVVIQVFFRUp6QWxNQ01HQ0NzR0FRVUYKQnpBQ2hoZG9kSFJ3T2k4dmNqRXlMbWt1YkdWdVkzSXViM0puTHpBbEJnTlZIUkVFSGpBY2docGhaRzFwYmk1MApaWE4wTG5CeWIyWXRjM1JoYm10cGJpNXlkVEFUQmdOVkhTQUVEREFLTUFnR0JtZUJEQUVDQVRBdUJnTlZIUjhFCkp6QWxNQ09nSWFBZmhoMW9kSFJ3T2k4dmNqRXlMbU11YkdWdVkzSXViM0puTHpReExtTnliRENDQVE0R0Npc0cKQVFRQjFua0NCQUlFZ2Y4RWdmd0ErZ0IvQU9NampmS05vb2pncXVDczhQcVF5WVh3dHIvMTBxVW5zQUg4SEVSWQp4TGJvQUFBQm01aUJsK3dBQ0FBQUJRQXVrL3hPQkFNQVNEQkdBaUVBN3AzU2g4YTg5TmtKWmM5dUF2N1hUakJqCmVGcHl6eDRpellOdTU4RmpkejhDSVFDUTF6cXEydjV5QjRLMHFqOGlueUw0Z1lwV3lkblZ0bjREZXFERmE1U3UKUWdCM0FHUVJ4R3lrRXV5bmlSeWlBaTRBdkt0UEtBZlVIalVucStyKzFRUEpmYzN3QUFBQm01aUJuYklBQUFRRApBRWd3UmdJaEFMbUZQaWltMXphelBRUjczRTVaTEZ5VkV1b05PSExIQ2FUZ1hqYnZ1RitPQWlFQXZRVjFmUXN2ClZ6c0JEazdOaS83K01lUVVXTXpZMGkxU3RnSGFKdlVVWUtrd0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFCUXIKY0FxOG8rbVBaWXBEbStsWnVhR3dWZUF1bnk3b3dSOVA4TmMwR1EwODAxM0FROU4wRFRZVGM4cEUvZEJ2L2ZJWQp3Z1ZQdjEybi94bm5rLzBNMHN5REZWRDVGZXFBMGtqU3diRlU2MXpOK3RjdXVQSjNZbVJkTG54OG5PcFF6ejNpCnIwUlIwaUNzUXRaZVRYTjJMOFlrTWt1aFBJY2NmVkxNczl4TTlicEEzWmVMRnZXU1k5QUdhYXFKQU44Wi9XVEsKNzY1R3N3anhsRVZTUDdRc1oyaEIvRFFjbXRDRE5MK1JtUG8zWXJQRzAwcGxHNjZJTVl4U1hlU1V4ZzF1MU5sZQoxRFhtUDlGSzVmUHVQQWNoZFRkaVF6eG8yVjBNeUVtR1RaUGhxcXVjVWN2aXNNRDZ6RlpoMXFRTzlNdFpXdklmCjFmL1FGVTg2N0haM1M5MGoyN0k9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0KLS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZCakNDQXU2Z0F3SUJBZ0lSQU1JU01rdHdxYlNSY2R4QTkrS0ZKand3RFFZSktvWklodmNOQVFFTEJRQXcKVHpFTE1Ba0dBMVVFQmhNQ1ZWTXhLVEFuQmdOVkJBb1RJRWx1ZEdWeWJtVjBJRk5sWTNWeWFYUjVJRkpsYzJWaApjbU5vSUVkeWIzVndNUlV3RXdZRFZRUURFd3hKVTFKSElGSnZiM1FnV0RFd0hoY05NalF3TXpFek1EQXdNREF3CldoY05NamN3TXpFeU1qTTFPVFU1V2pBek1Rc3dDUVlEVlFRR0V3SlZVekVXTUJRR0ExVUVDaE1OVEdWMEozTWcKUlc1amNubHdkREVNTUFvR0ExVUVBeE1EVWpFeU1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQgpDZ0tDQVFFQTJwZ29kSzIrbFA0NzRCN2k1VXQxcXl3U2YrMm5BekorTnBmczZER1BwUk9OQzVrdUhzMEJVVDFNCjVTaHVDVlV4cXFVaVhYTDBMUWZDVFVBODN3RWp1WGczOVJwbE1qVG1obkdkQk8rRUNGdTlBaHFaNjZZQkFKcHoKa0cyUG9nZWcwSmZUMmtWaGdUVTlGUG5Fd0Y5cTNBdVdHckNmNHlycXZTcldtTWViY2FzN2RBODgyN0pndmxwTApUaGpwMnlwelhJbGhaWjcrN1R5bXkwNXY1Sjc1QUVhei94bE5LbU96am1iR0dJVnd4MUJsYnp0MDVVaUREd2hZClhTMGpuVjZqL3VqYkFLSFM5T01aVGZMdWV2WW5udVhObkMyaThuK2NGNjN2RXpjNTBiVElMRUhXaHNEcDdDSDQKV1J0L3VUcDhuMXdCbldJRXdpaTlDcTA4eWhEc0d3SURBUUFCbzRINE1JSDFNQTRHQTFVZER3RUIvd1FFQXdJQgpoakFkQmdOVkhTVUVGakFVQmdnckJnRUZCUWNEQWdZSUt3WUJCUVVIQXdFd0VnWURWUjBUQVFIL0JBZ3dCZ0VCCi93SUJBREFkQmdOVkhRNEVGZ1FVQUxVcDhpMk9iekhvbTB5dGVENzYzT2tNMGRJd0h3WURWUjBqQkJnd0ZvQVUKZWJSWjVudTI1ZVFCYzRBSWlNZ2FXUGJwbTI0d01nWUlLd1lCQlFVSEFRRUVKakFrTUNJR0NDc0dBUVVGQnpBQwpoaFpvZEhSd09pOHZlREV1YVM1c1pXNWpjaTV2Y21jdk1CTUdBMVVkSUFRTU1Bb3dDQVlHWjRFTUFRSUJNQ2NHCkExVWRId1FnTUI0d0hLQWFvQmlHRm1oMGRIQTZMeTk0TVM1akxteGxibU55TG05eVp5OHdEUVlKS29aSWh2Y04KQVFFTEJRQURnZ0lCQUk5MTBBblBhblpJWlRLUzNyVkV5SVYyOUJXRWpBSy9kdXV6OGVMNWJvU29WcEhoa2t2Mwo0ZW9BZUVpUGRaTGo1RVo3RzJBcklLK2d6aFRsUlExcTRGS0dwUFBhRkJTcHFWL3hiVWI1VWxBWFFPbmtIbjNtCkZWaitxWXY4Ny9XZVkrQm00c04zT3g4Qmh5YVU3VUFRM0xlWjdOMVgwMXh4UWU0d0lBQUUzSlZMVUNpSG1aTCsKcW9DVXRnWUlGUGdjZzM1MFFNVUlXZ3hQWE5HRW5jVDkyMW5lN25sdUkwMlY4cExVbUNscVhPc0N3VUx3K1BWTwpaQ0I3cU9NeHhNQm9DVWVMMkxsNG9NcE9TcjVwSkNwTE4zdFJBMnM2UDFLTHM5VFNyVmhPays3TFgyOE5NVWxJCnVzUS9ueExKSUQwUmhBZUZ0UGp5T0NPc2NRQkE1MytOUmpTQ2FrN1A0QTVqWDdwcG1rY0pFQ0wrUzBpM2tYVlUKeTVNZTVCYnJVODk3M2paTnYvYXg2K1pLNlRNOGpXbWltTDZvZjZPclg3WlU2RTJXcWF6enNGckxHM28ya3lTYgp6bGhTZ0o4MUNsNHR2M1NiWWlZWG5KRXhLUXZ6ZjgzRFlvdG94M2YwZnd2N3hsbjFBMlpMcGxDYjBPK2wvQUswCllFMERTMkZQeFNBSGkwaXdNZlcybk5ISnJYY1kzTExIRDc3Z1JnamU0RXZldWJpMnh4YStObWsvaG1oTGRJRVQKaVZERmFub0NyTVZJcFE1OVhXSGt6ZEZtb0hYSEJWN29pYlZqR1NPN1VMU1E3TUoxTno1MXBodURKU2dBSVU3QQowenJMbk9yQWovZGZybEVXUmhDdkFnYnV3TFpYMUEyc2pOalhvUE9IYnNQaXkrbE8xS0Y4L1hZNwotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBMEl6SWhKa2RFTTVBTFM4eVZJQktLUXNuUUIzeHMwYUVNY2JWNXJDOEF3Rm9Ya0tvCkhldjhmL1h6RytYY1p5Vm5OV1RjSmxTVEJvdUdVck5GeXhCeWtHenozSTcxbU93N1BjblNuRjZROVJzRGNNL0cKL2dIaWpCbDA5ekdhQUhqYXlhMXRQblZqMi92NzVYSjhQVWlEK2o5R2FUeWxCb3FHVE1ZR1NVMEpyWHJiT0xWZAptdnM1VkxBTm5TOHIrWTJGajVKMUNTSVhtUW1odXBWNC9oYVRudGZLZXZ0QllRQmdENythRWQra1lUbXhRWjRVCk5QYnlheGVzOW9GNjFnWFhxeUYwYUd6bE9PV2FrYkl1SVpUUmZSdVNoR3pkQ05IVTY5ckJSamIwYXovMEZGT1gKSmJ5ZVpqUloxSWluMHVqUkQyZUd0TGhyT0JxTmx4RENFWjVPZ3dJREFRQUJBb0lCQVFDQmJuNmNYUEsvRldLYgpLR21TTERUYW1FTjU5WnVtYWlOdFNUeEQrbmdWWFhCSzRBKzYwbFZaaldtZWJPQ0hXNTFjZEFaMSs1TnNRbmZSCko5WXZHendmQ3ArbXlVci81ODAwb2VlR2lPSnFYS09jQmpnNE9TOURTQ0Zoc1hVa3lkenZ3aVRFMk5KckcwN1EKcm1jUkdjcGZLNW9sZ2kvaGlXT2tqbG9rY0IyTGZrN3hiRnlLYTY3eEV1S09VWWVsZmZnVWUwYitrcWZZSHRHKwpLNisxcFRFVWZDVW9EQVFiNEUzRVgydWZReldrc291K3YrYUxCbVhxUWNnUW9ud2RwcFM2bnZmdmVyZEVtVmhkClJwRWo2VkZMTUh5ck91ampCM1ozcUFOWFdNempaVFRhcXZkazUvKzgyblhma0MxWjZhVm00TzVXaWxWL1B2Wm8KVDgzUVVheUJBb0dCQVBWVDNoV1E0cjFxdFNsd21zSXp3MmZvUFI2cVU3Wi8rbTY3ZU4vbFFwWCtFdWxyL0FGbAp3M0t3UjMzMTlQK20xK0pUK3p3Qm1HY0VDS0wrL1dLNngyclB5WDVpNmM4LytjWkd3cmt0Q1dVajY0VDBBOXNRCmR5SVJhTW5jS0ZWRGVSbEsxSGVVb0VNRndFdmlGUS82bmJST205c3FyeHNrYUVTa1VORmhIT2tqQW9HQkFObWYKVmNDUVIvdHY2cFJvNEEzV09CbFZTaHkrY0VnN1hxcmRaSEFhT0R4MHlyV25nUzVpV3YxSG5zZWoxZDRrVzd6NApRelRIWHpGMVBCQlZia21Ha0ZoSDF5N3c4SGhNK3JPOGpEL0JmRGpaSHE2OXhGdDRieFRrczRmUVpWTmN5S2N6CjQvMWR4L25xZW5VSGVSYWF1M25tZE5zMmY3YmNGOElXQzMzdi9Vc2hBb0dBRTV1T1puN2NBSE9rNHhrQzVYNnAKb1lab1RDa2s0N002MnRyVkFHQWNnRXg4U25lOC9vZVpwWEw5WTgzaXRRUXF3UVloVUZ4NFI5T0V0VEpZSWluMwpna3YxT01yREVUTjF6U2tlcXhvMFpBY0k3ZWxxM1hsbGJDMmtDRzQyTXdwZmhXdjdxMHNQdkF1Ym9QVUM1ZklMCjVMdGJyWnF0d0NlYXhkRzBPK2ZkSGEwQ2dZRUFqdy9DNUxzMHh1TlUxOGwxK1VLcFVHWVVPWDhyK3lBa1pMajAKRFFuL2pDYlBGOG9ORHp3VFNzdnBZcDZldXRFMkNhMC9LUlFqelRTZmpyRkt0a1VpNFJZaExMZXhyYlFWWDFFRQo5ZWl4VEFIWHZOSDlvcEF5bmc2V3d5TEphWnJtUVp6SU5VaVFiUWVyQndJcHBTV0ZOMmE3elZ3dmF6dVcxcjE5ClFvWWhBbUVDZ1lFQW9mY1pEdmg3Mm5FMmV1UytSUUhkOUlpeWtKaWx4cUx0THVuTnBOREl2aGJvVzNwdUR1dCsKUGhDVmpuTkVsZ0E5cnFNYmtQTHZOeTllcjlQMkFUZ2RabHU3c0V4U0F1d3lmWXgzVzFtM0tyVjlGWHpkVE1oTgorbXU3WERSM3pLTVpRTUJpSy9ha2VBUlRXc2lPOWt0dDBtck5EcE11cXBHMllNU29FbjBBWmQ4PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+kind: Secret
+metadata:
+  annotations:
+    cert-manager.io/alt-names: admin.prof-stankin.ru
+    cert-manager.io/certificate-name: blog-admin-tls
+    cert-manager.io/common-name: admin.prof-stankin.ru
+    cert-manager.io/ip-sans: ""
+    cert-manager.io/issuer-group: cert-manager.io
+    cert-manager.io/issuer-kind: ClusterIssuer
+    cert-manager.io/issuer-name: letsencrypt-prod
+    cert-manager.io/uri-sans: ""
+  labels:
+    controller.cert-manager.io/fao: "true"
+  name: blog-admin-tls
+  namespace: default
+apiVersion: v1
+data:
+  JWT_SECRET: c3VwZXItc2VjcmV0LWtleS1oZXJl
+  JWT_SECRET_KEY: c3VwZXItc2VjcmV0LWtleS1oZXJl
+  MINIO_ROOT_PASSWORD: bWluaW8xMjM=
+  POSTGRES_PASSWORD: cGFzcw==
+kind: Secret
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: blog-api:/Secret:default/blog-api-secrets
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Secret","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:/Secret:default/blog-api-secrets"},"name":"blog-api-secrets","namespace":"default"},"stringData":{"JWT_SECRET_KEY":"super-secret-key-here","MINIO_ROOT_PASSWORD":"minio123","POSTGRES_PASSWORD":"pass"},"type":"Opaque"}
+  name: blog-api-secrets
+  namespace: default
+type: Opaque
+---
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZIRENDQkFTZ0F3SUJBZ0lTQnBtNnhSaW9IZjlPSWNmWGRWZWdhL2trTUEwR0NTcUdTSWIzRFFFQkN3VUEKTURNeEN6QUpCZ05WQkFZVEFsVlRNUll3RkFZRFZRUUtFdzFNWlhRbmN5QkZibU55ZVhCME1Rd3dDZ1lEVlFRRApFd05TTVRJd0hoY05Nall3TVRFd01USXpPVEEyV2hjTk1qWXdOREV3TVRJek9UQTFXakFvTVNZd0pBWURWUVFECkV4MWhjR2t0WW14dlp5NTBaWE4wTG5CeWIyWXRjM1JoYm10cGJpNXlkVENDQVNJd0RRWUpLb1pJaHZjTkFRRUIKQlFBRGdnRVBBRENDQVFvQ2dnRUJBTUNOMlYwZExQZFE4QW9oM3U2OG4xSXBtTk94czIybElHWlVDdXNrRmxHTAppZUoweEdzTnJSMGRLSlR3dFpWYlpQUGMrNXlkYS9zMkVMSVNUcjRKOFRWazVQYWw1dWdVS01GZDZLQjkvb0hWClFzSjNXeldhVHA1S1dqcWRVVS9YV3JpRTBGaWsyOEI4UDJQUnJJSUMybU9wTFp2OWpMVjRkaFNNM0o4QytZNVcKUk12dG1qNVl0YTRlNWdxNmlCa01POWZ5ZE4yRktkRjI2M1gzWjNjRHhMeEJSSlYyM1Y2RExOTU1xWTlmTGxDSwpHZ3BWcjBzeWYxUDVDYmpScDY0Nk5YaDNNK1htYkExZ2FWbGZ0QWpUWCtCYTk0MUEzbmZ1TTZsWjVvTVdhaWFuCkpkRUFHeVQyVC9zemlkbTczZ3Zza2tRTDIvRFhJRlZKeE1RYVZOMkJheTBDQXdFQUFhT0NBak13Z2dJdk1BNEcKQTFVZER3RUIvd1FFQXdJRm9EQWRCZ05WSFNVRUZqQVVCZ2dyQmdFRkJRY0RBUVlJS3dZQkJRVUhBd0l3REFZRApWUjBUQVFIL0JBSXdBREFkQmdOVkhRNEVGZ1FVR2dCRDc4aUlzQ1pCSlJCbjQzM0tuRUZoVjhVd0h3WURWUjBqCkJCZ3dGb0FVQUxVcDhpMk9iekhvbTB5dGVENzYzT2tNMGRJd013WUlLd1lCQlFVSEFRRUVKekFsTUNNR0NDc0cKQVFVRkJ6QUNoaGRvZEhSd09pOHZjakV5TG1rdWJHVnVZM0l1YjNKbkx6QW9CZ05WSFJFRUlUQWZnaDFoY0drdApZbXh2Wnk1MFpYTjBMbkJ5YjJZdGMzUmhibXRwYmk1eWRUQVRCZ05WSFNBRUREQUtNQWdHQm1lQkRBRUNBVEF1CkJnTlZIUjhFSnpBbE1DT2dJYUFmaGgxb2RIUndPaTh2Y2pFeUxtTXViR1Z1WTNJdWIzSm5Mek0zTG1OeWJEQ0MKQVFvR0Npc0dBUVFCMW5rQ0JBSUVnZnNFZ2ZnQTlnQjFBR1FSeEd5a0V1eW5pUnlpQWk0QXZLdFBLQWZVSGpVbgpxK3IrMVFQSmZjM3dBQUFCbTZnZ2J6OEFBQVFEQUVZd1JBSWdCU0VWYnIydzFHb25jUzFGT1QySWxicXFzRVNQCnMxQUY1YWoxYzlQL2RuWUNJQ2RaSERDRXBDYm1mUnJ0SWhYc2x2MkRpMzNudGxMdFNmUmNvdEJrME9UVUFIMEEKcGNsNGtsMVhSaGVDaHczWWlXWUxYRlZraTMwQVFQTHNCMmhSMFlocEdmY0FBQUdicUNCd1BnQUlBQUFGQUM2SApPaUFFQXdCR01FUUNJRFNUM3F5QlpITmpZT295eW10OGhJL1pKQ2dCdFJQSEtURVdNYjNlWUw3UUFpQXZrTEV5ClFyMmQxWHpHNDhyb0N0YUJzeDlyMnNFL0dqVmtEWjVPUWlkVlp6QU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUEKSDV4YWdQM2QwcTRJSWJvaVRjK3JTV0pxbm1IdlFMVExMOWU3WVlDMDFVWTE5VDZoZmQ3NkZaOWxCNVJBWEdCZQpLK3lQT3J4MDl1NzV6RUcyU3d2UHloTjk4SFVIM2ZmLzVJOXU3V3ZPeHJZVXBZc1JMSFVCS1dMejlvNllBOXNoCm01SU9sVlc3QmJ6bzRiMm94Y3Bzc3YxSUdFQ1lKZ3ZjZmVjdHU1dnVpeFF6bC9WT0FOdERXbW5WQ0d3YmIwK3YKVVlwcnA2RWFlQnZEdFdBZWM2em5ad1lId3hYL1p3MlM4N1hFSUhqc3lKODlHL1FuYTVDaG91L0FJdi9qOExWLwpXdjRSM01teW5wOFdoMHZJbEhvbUpoR2UvMklOYmZCdkdsSGwvSVVvbTRaUENHbEhlY0laR3J5ckk5dEtnUlBlCmpxYVI4TURiVDBvcHlsY0pqNGowOHc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCi0tLS0tQkVHSU4gQ0VSVElGSUNBVEUtLS0tLQpNSUlGQmpDQ0F1NmdBd0lCQWdJUkFNSVNNa3R3cWJTUmNkeEE5K0tGSmp3d0RRWUpLb1pJaHZjTkFRRUxCUUF3ClR6RUxNQWtHQTFVRUJoTUNWVk14S1RBbkJnTlZCQW9USUVsdWRHVnlibVYwSUZObFkzVnlhWFI1SUZKbGMyVmgKY21Ob0lFZHliM1Z3TVJVd0V3WURWUVFERXd4SlUxSkhJRkp2YjNRZ1dERXdIaGNOTWpRd016RXpNREF3TURBdwpXaGNOTWpjd016RXlNak0xT1RVNVdqQXpNUXN3Q1FZRFZRUUdFd0pWVXpFV01CUUdBMVVFQ2hNTlRHVjBKM01nClJXNWpjbmx3ZERFTU1Bb0dBMVVFQXhNRFVqRXlNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUIKQ2dLQ0FRRUEycGdvZEsyK2xQNDc0QjdpNVV0MXF5d1NmKzJuQXpKK05wZnM2REdQcFJPTkM1a3VIczBCVVQxTQo1U2h1Q1ZVeHFxVWlYWEwwTFFmQ1RVQTgzd0VqdVhnMzlScGxNalRtaG5HZEJPK0VDRnU5QWhxWjY2WUJBSnB6CmtHMlBvZ2VnMEpmVDJrVmhnVFU5RlBuRXdGOXEzQXVXR3JDZjR5cnF2U3JXbU1lYmNhczdkQTg4MjdKZ3ZscEwKVGhqcDJ5cHpYSWxoWlo3KzdUeW15MDV2NUo3NUFFYXoveGxOS21PemptYkdHSVZ3eDFCbGJ6dDA1VWlERHdoWQpYUzBqblY2ai91amJBS0hTOU9NWlRmTHVldllubnVYTm5DMmk4bitjRjYzdkV6YzUwYlRJTEVIV2hzRHA3Q0g0CldSdC91VHA4bjF3Qm5XSUV3aWk5Q3EwOHloRHNHd0lEQVFBQm80SDRNSUgxTUE0R0ExVWREd0VCL3dRRUF3SUIKaGpBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjREFnWUlLd1lCQlFVSEF3RXdFZ1lEVlIwVEFRSC9CQWd3QmdFQgovd0lCQURBZEJnTlZIUTRFRmdRVUFMVXA4aTJPYnpIb20weXRlRDc2M09rTTBkSXdId1lEVlIwakJCZ3dGb0FVCmViUlo1bnUyNWVRQmM0QUlpTWdhV1BicG0yNHdNZ1lJS3dZQkJRVUhBUUVFSmpBa01DSUdDQ3NHQVFVRkJ6QUMKaGhab2RIUndPaTh2ZURFdWFTNXNaVzVqY2k1dmNtY3ZNQk1HQTFVZElBUU1NQW93Q0FZR1o0RU1BUUlCTUNjRwpBMVVkSHdRZ01CNHdIS0Fhb0JpR0ZtaDBkSEE2THk5NE1TNWpMbXhsYm1OeUxtOXlaeTh3RFFZSktvWklodmNOCkFRRUxCUUFEZ2dJQkFJOTEwQW5QYW5aSVpUS1MzclZFeUlWMjlCV0VqQUsvZHV1ejhlTDVib1NvVnBIaGtrdjMKNGVvQWVFaVBkWkxqNUVaN0cyQXJJSytnemhUbFJRMXE0RktHcFBQYUZCU3BxVi94YlViNVVsQVhRT25rSG4zbQpGVmorcVl2ODcvV2VZK0JtNHNOM094OEJoeWFVN1VBUTNMZVo3TjFYMDF4eFFlNHdJQUFFM0pWTFVDaUhtWkwrCnFvQ1V0Z1lJRlBnY2czNTBRTVVJV2d4UFhOR0VuY1Q5MjFuZTdubHVJMDJWOHBMVW1DbHFYT3NDd1VMdytQVk8KWkNCN3FPTXh4TUJvQ1VlTDJMbDRvTXBPU3I1cEpDcExOM3RSQTJzNlAxS0xzOVRTclZoT2srN0xYMjhOTVVsSQp1c1EvbnhMSklEMFJoQWVGdFBqeU9DT3NjUUJBNTMrTlJqU0NhazdQNEE1alg3cHBta2NKRUNMK1MwaTNrWFZVCnk1TWU1QmJyVTg5NzNqWk52L2F4NitaSzZUTThqV21pbUw2b2Y2T3JYN1pVNkUyV3FhenpzRnJMRzNvMmt5U2IKemxoU2dKODFDbDR0djNTYllpWVhuSkV4S1F2emY4M0RZb3RveDNmMGZ3djd4bG4xQTJaTHBsQ2IwTytsL0FLMApZRTBEUzJGUHhTQUhpMGl3TWZXMm5OSEpyWGNZM0xMSEQ3N2dSZ2plNEV2ZXViaTJ4eGErTm1rL2htaExkSUVUCmlWREZhbm9Dck1WSXBRNTlYV0hremRGbW9IWEhCVjdvaWJWakdTTzdVTFNRN01KMU56NTFwaHVESlNnQUlVN0EKMHpyTG5PckFqL2RmcmxFV1JoQ3ZBZ2J1d0xaWDFBMnNqTmpYb1BPSGJzUGl5K2xPMUtGOC9YWTcKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb1FJQkFBS0NBUUVBd0kzWlhSMHM5MUR3Q2lIZTdyeWZVaW1ZMDdHemJhVWdabFFLNnlRV1VZdUo0blRFCmF3MnRIUjBvbFBDMWxWdGs4OXo3bkoxcit6WVFzaEpPdmdueE5XVGs5cVhtNkJRb3dWM29vSDMrZ2RWQ3duZGIKTlpwT25rcGFPcDFSVDlkYXVJVFFXS1Rid0h3L1k5R3NnZ0xhWTZrdG0vMk10WGgyRkl6Y253TDVqbFpFeSsyYQpQbGkxcmg3bUNycUlHUXc3MS9KMDNZVXAwWGJyZGZkbmR3UEV2RUZFbFhiZFhvTXMwd3lwajE4dVVJb2FDbFd2ClN6Si9VL2tKdU5HbnJqbzFlSGN6NWVac0RXQnBXViswQ05OZjRGcjNqVURlZCs0enFWbm1neFpxSnFjbDBRQWIKSlBaUCt6T0oyYnZlQyt5U1JBdmI4TmNnVlVuRXhCcFUzWUZyTFFJREFRQUJBb0lCQUgzUE1LcEtHY3N0c3Vpcgo0TUVUdFBVMkFJaXdubytSU0c0VGsxNjNvVzErUW9VWHpnNDBUVnVzWll1TEN0bWZjWUowYkdHVDZhMmxVWnRICm92TkFBNzNqUWtaMWR6MURqcTFvOGttS2lQUERwMjd3RlVRY29pbUNZeG5SR0FPV3JjdkoyMmRQcjlWQVdScWIKTUo5eHhjZEFEbkRSWlZKY2RxcE9yd2VtSmUvOUF4UmtQSy93d2o1REd6aFhWQzdOSWdTaFAvOElpa09VWFlEQQpidmd0amVTN2YwWEV4TmhMVWhkcytYSXViWFl1ajE5WmUwY2I2dWJpRkNHN1FUWUR1V3ZXNjR0UDVjRjlvRUdrCnhibDZRVzBSUUpsTnFSQkxCL3M4ZzZtREwvNzdwNnJBVlgzQVhiMWtQSVd1WjhGbjFZV3pMS1ZuZ3M5SHZSQlgKbUlSV0QzRUNnWUVBN0xjT1V0MW4wS0RuN0IveDI1d1p2NUZldFBBRHhJb2V6N3pBRlZucW5aUHNLS1RiZzZ4ZApzamt1QXRWQnBlenQwc0RDemRueW9YSExrV2dkVlIvU3pwNDVCNmN5TmU1Q3ZSOUlNWnVrQjlGbzBSekxpTUlTCjJYaHZOMElZc3R3ZytCVFBJeUZ0M2t1V3h5WTBwSmMyS3ZZUE9UdC93U29mQndhZThWUW9ZazhDZ1lFQTBEM0UKOFdnVktNZzI4WWJPMFFvNVBnUlF6MzUrUVUrc3FYU1lWMzJjdlZrYjI5M1ZoSVVGQTJXZmcxQzZFNHFYR282RApTLy81TUV4c0F0bThVT3dxVkNGaW1QNGpxeC91eEZBUURWUnZHdnhsZ0dtaEczZk1ucDZiaVI5c01KNDV0YVh6Cmdocml5MkNLYURMeTRIOHFXR1dpT2ZZWmdUcStZbStRNkFWVHA4TUNmM3I2bjNadGtJSFRGcXFWN2hFcUNEWisKVDdXdy9FUWZmZUp2TFZ2cVd2bUM0QzQ5ZDgzd3ZyelkrQTZBdkpwM2ZSY0JEalBrQnluWTlPbVdMYWNMNFhsMgp1aW8vc3RaUjhscE81akxmcVZobWN3NHc1NDBsUnFXMDdCTEpSQXVvVVhpUlZ3dnBVaXNyR2lwY3J2elRrbEMvCmhTazJ3Q2lhdVlQczdLWjBFb2NDZ1lCMGFBTWVtM3N3aC9OR3duLzhGTVg0NS9xd2N0cHE4Zm5uNUJpQTErUDEKYU1tTTk0MnkvWlRXMkVqNTQvZVFrdWx5Mi9XRFYzelp4ZTZmRFU0YXdsbkxHN3A5SVp1WXZrbi9qVzNidGJaQwpGSk04M0U5R0Jvcm9wR3IzbFF3cWhWaG5OWFJRNTJ5ZUdjSmxDdzMvOXJZYUlmNDBmbUMxZjd3TFZLaGhPeEVQCmR3S0JnUURiWlFRQXdhOE5tbjJBWWN0d0dFL2NDc3VaQWNWeFBLdFBmWGtpWVVYT2xlSTRIVkNTR0FrbStkSmsKRS9kWlZiRXNhakpDTSsvU1VSNkppbHc2d1ExQks2TzJ1OHk4dERDUTE2UUF1YUxUMzh1TzhGNzQvVDhQcjJIagpPbFc0UitRdGRPSURSM2Fib0htNThUTElLVmpFVVYzeG9uTWFQbkJyNjRCL1RUMVcxZz09Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+kind: Secret
+metadata:
+  annotations:
+    cert-manager.io/alt-names: api-blog.prof-stankin.ru
+    cert-manager.io/certificate-name: blog-api-tls
+    cert-manager.io/common-name: api-blog.prof-stankin.ru
+    cert-manager.io/ip-sans: ""
+    cert-manager.io/issuer-group: cert-manager.io
+    cert-manager.io/issuer-kind: ClusterIssuer
+    cert-manager.io/issuer-name: letsencrypt-prod
+    cert-manager.io/uri-sans: ""
+  labels:
+    controller.cert-manager.io/fao: "true"
+  name: blog-api-tls
+  namespace: default
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZEakNDQS9hZ0F3SUJBZ0lTQlZBOEZ3RVpNcWdEY1BMdldvLzIvQ285TUEwR0NTcUdTSWIzRFFFQkN3VUEKTURNeEN6QUpCZ05WQkFZVEFsVlRNUll3RkFZRFZRUUtFdzFNWlhRbmN5QkZibU55ZVhCME1Rd3dDZ1lEVlFRRApFd05TTVRJd0hoY05Nall3TVRFNE1UTXlORFV6V2hjTk1qWXdOREU0TVRNeU5EVXlXakFsTVNNd0lRWURWUVFECkV4cHRhVzVwYnk1MFpYTjBMbkJ5YjJZdGMzUmhibXRwYmk1eWRUQ0NBU0l3RFFZSktvWklodmNOQVFFQkJRQUQKZ2dFUEFEQ0NBUW9DZ2dFQkFNQ0lWaW1tdk83cGtBc0ZqekpZYTVXMHRLUWllTWRQSXk3cFkwSW5nU280Q3k5WgpGWUdRRVpOc3ViRzh4Z0RmZUVTZ01iUGwyM2hQZTJPdjVhT3FBek11cVgvb0FoTnk0VHFCT252Yk40cHFabFkzCkRpWmErMFJRV2dyL3pmWWlNNE1ManBVRlBBWDQwcXZibTVoSTdiUzFSb1JjdytLR1hEMWdZNUZYRldnellsR2EKbEppRHZUczVZOHY0WFQ5WE9YTFc2QnA2eUhmcmgxYzNqVDhkSzE0aFNCNUFrMXpwN2VoSEJpT1piWllxZ1ZHVQpwbExlTW42YUtXZ2lsRDFNQjcvR0RQTjZQc0JxR2xPUFZmRUsrblUyZnE2cmtDQ1FyTlY5ZkwzV1R3d3pFdURqCm14RUFxcWVTZGhXM3J0dmtBdWJqN3g3WU1adWVvOG12c3gxODRxMENBd0VBQWFPQ0FpZ3dnZ0lrTUE0R0ExVWQKRHdFQi93UUVBd0lGb0RBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjREFRWUlLd1lCQlFVSEF3SXdEQVlEVlIwVApBUUgvQkFJd0FEQWRCZ05WSFE0RUZnUVVEQVFiNFBld3F3ZjdxMEYvSGxMUW1xT0RFMVl3SHdZRFZSMGpCQmd3CkZvQVVBTFVwOGkyT2J6SG9tMHl0ZUQ3NjNPa00wZEl3TXdZSUt3WUJCUVVIQVFFRUp6QWxNQ01HQ0NzR0FRVUYKQnpBQ2hoZG9kSFJ3T2k4dmNqRXlMbWt1YkdWdVkzSXViM0puTHpBbEJnTlZIUkVFSGpBY2docHRhVzVwYnk1MApaWE4wTG5CeWIyWXRjM1JoYm10cGJpNXlkVEFUQmdOVkhTQUVEREFLTUFnR0JtZUJEQUVDQVRBdUJnTlZIUjhFCkp6QWxNQ09nSWFBZmhoMW9kSFJ3T2k4dmNqRXlMbU11YkdWdVkzSXViM0puTHpZeUxtTnliRENDQVFJR0Npc0cKQVFRQjFua0NCQUlFZ2ZNRWdmQUE3Z0IxQUdRUnhHeWtFdXluaVJ5aUFpNEF2S3RQS0FmVUhqVW5xK3IrMVFQSgpmYzN3QUFBQm05RjlPeU1BQUFRREFFWXdSQUlnTFg4c2xmL1FkWDVOMGhOdC9LWk9jRU83RlVIckJ1S0NNNElrCjA0SEF3amtDSUM3UE1BZzRHUHVUUHMrQjRCbWR5eDR6UmQ0T1JCRHZhUXhZa3BRNCtrUStBSFVBRGxlVXZQT3UKcVQ0ekd5eVpCN1Aza04rYndqMXhNaVhkSWFrbHJHSEZUaUVBQUFHYjBYMDdKZ0FBQkFNQVJqQkVBaUJneGdLOAp4TEhSVUlreEdncnZHcXBWaUpkeTFrckN6SVpjTUs5ZlB2b3YwUUlnRWVnZGd1SWhuYUNWL2pmQjcwQmNsWDVmCmdXY1Z1YVlMMVZyWWJjUVlvWjh3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUkrdnRKYjVZYjZDanlIcnU1NVAKOWwzRkVIMVlaUlZaL1Y0UkNueXlnVXNlS2lsdHpHeENYRFFXUms1cWdlTGJjb0VQU1pGV3d4NmppTzg4b3A0QwpieFFCTmdyODNscC9rZGJQOVFWdGx1b1FPc1htMzVRUVFvcEV1NWpHZFlzWm5PbXQ3aVFhU281L2REcGlJZzB5CjdtTWJKajJlNlpnR0c5ZkVGbGgyMjA4c29Ed0hHdVBlSG1WVFJRZ2E0MXhMTmVtVnl3WGRwZHhEQ0I1VUQ2TkgKVm95YVJRQ3R6Znp4UGtzb2w4N2dvODhUZXBaZnJUSEJtMDZMNzR0RXlNcVBSbE5rSERDQVFHdlJsM0o4TGNWLwovQjhLdERhRzd0ZnE1dXVGS2w0UGJySUNXQzFvWUw4NDJLUFlHZ1B0SmI4S2I3anp3dXlaQUQrdEEreWxKVXdICnJUOD0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQotLS0tLUJFR0lOIENFUlRJRklDQVRFLS0tLS0KTUlJRkJqQ0NBdTZnQXdJQkFnSVJBTUlTTWt0d3FiU1JjZHhBOStLRkpqd3dEUVlKS29aSWh2Y05BUUVMQlFBdwpUekVMTUFrR0ExVUVCaE1DVlZNeEtUQW5CZ05WQkFvVElFbHVkR1Z5Ym1WMElGTmxZM1Z5YVhSNUlGSmxjMlZoCmNtTm9JRWR5YjNWd01SVXdFd1lEVlFRREV3eEpVMUpISUZKdmIzUWdXREV3SGhjTk1qUXdNekV6TURBd01EQXcKV2hjTk1qY3dNekV5TWpNMU9UVTVXakF6TVFzd0NRWURWUVFHRXdKVlV6RVdNQlFHQTFVRUNoTU5UR1YwSjNNZwpSVzVqY25sd2RERU1NQW9HQTFVRUF4TURVakV5TUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCCkNnS0NBUUVBMnBnb2RLMitsUDQ3NEI3aTVVdDFxeXdTZisybkF6SitOcGZzNkRHUHBST05DNWt1SHMwQlVUMU0KNVNodUNWVXhxcVVpWFhMMExRZkNUVUE4M3dFanVYZzM5UnBsTWpUbWhuR2RCTytFQ0Z1OUFocVo2NllCQUpwegprRzJQb2dlZzBKZlQya1ZoZ1RVOUZQbkV3RjlxM0F1V0dyQ2Y0eXJxdlNyV21NZWJjYXM3ZEE4ODI3Smd2bHBMClRoanAyeXB6WElsaFpaNys3VHlteTA1djVKNzVBRWF6L3hsTkttT3pqbWJHR0lWd3gxQmxienQwNVVpRER3aFkKWFMwam5WNmovdWpiQUtIUzlPTVpUZkx1ZXZZbm51WE5uQzJpOG4rY0Y2M3ZFemM1MGJUSUxFSFdoc0RwN0NINApXUnQvdVRwOG4xd0JuV0lFd2lpOUNxMDh5aERzR3dJREFRQUJvNEg0TUlIMU1BNEdBMVVkRHdFQi93UUVBd0lCCmhqQWRCZ05WSFNVRUZqQVVCZ2dyQmdFRkJRY0RBZ1lJS3dZQkJRVUhBd0V3RWdZRFZSMFRBUUgvQkFnd0JnRUIKL3dJQkFEQWRCZ05WSFE0RUZnUVVBTFVwOGkyT2J6SG9tMHl0ZUQ3NjNPa00wZEl3SHdZRFZSMGpCQmd3Rm9BVQplYlJaNW51MjVlUUJjNEFJaU1nYVdQYnBtMjR3TWdZSUt3WUJCUVVIQVFFRUpqQWtNQ0lHQ0NzR0FRVUZCekFDCmhoWm9kSFJ3T2k4dmVERXVhUzVzWlc1amNpNXZjbWN2TUJNR0ExVWRJQVFNTUFvd0NBWUdaNEVNQVFJQk1DY0cKQTFVZEh3UWdNQjR3SEtBYW9CaUdGbWgwZEhBNkx5OTRNUzVqTG14bGJtTnlMbTl5Wnk4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnSUJBSTkxMEFuUGFuWklaVEtTM3JWRXlJVjI5QldFakFLL2R1dXo4ZUw1Ym9Tb1ZwSGhra3YzCjRlb0FlRWlQZFpMajVFWjdHMkFySUsrZ3poVGxSUTFxNEZLR3BQUGFGQlNwcVYveGJVYjVVbEFYUU9ua0huM20KRlZqK3FZdjg3L1dlWStCbTRzTjNPeDhCaHlhVTdVQVEzTGVaN04xWDAxeHhRZTR3SUFBRTNKVkxVQ2lIbVpMKwpxb0NVdGdZSUZQZ2NnMzUwUU1VSVdneFBYTkdFbmNUOTIxbmU3bmx1STAyVjhwTFVtQ2xxWE9zQ3dVTHcrUFZPClpDQjdxT014eE1Cb0NVZUwyTGw0b01wT1NyNXBKQ3BMTjN0UkEyczZQMUtMczlUU3JWaE9rKzdMWDI4Tk1VbEkKdXNRL254TEpJRDBSaEFlRnRQanlPQ09zY1FCQTUzK05SalNDYWs3UDRBNWpYN3BwbWtjSkVDTCtTMGkza1hWVQp5NU1lNUJiclU4OTczalpOdi9heDYrWks2VE04aldtaW1MNm9mNk9yWDdaVTZFMldxYXp6c0ZyTEczbzJreVNiCnpsaFNnSjgxQ2w0dHYzU2JZaVlYbkpFeEtRdnpmODNEWW90b3gzZjBmd3Y3eGxuMUEyWkxwbENiME8rbC9BSzAKWUUwRFMyRlB4U0FIaTBpd01mVzJuTkhKclhjWTNMTEhENzdnUmdqZTRFdmV1YmkyeHhhK05tay9obWhMZElFVAppVkRGYW5vQ3JNVklwUTU5WFdIa3pkRm1vSFhIQlY3b2liVmpHU083VUxTUTdNSjFOejUxcGh1REpTZ0FJVTdBCjB6ckxuT3JBai9kZnJsRVdSaEN2QWdidXdMWlgxQTJzak5qWG9QT0hic1BpeStsTzFLRjgvWFk3Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBd0loV0thYTg3dW1RQ3dXUE1saHJsYlMwcENKNHgwOGpMdWxqUWllQktqZ0xMMWtWCmdaQVJrMnk1c2J6R0FOOTRSS0F4cytYYmVFOTdZNi9sbzZvRE15NnBmK2dDRTNMaE9vRTZlOXMzaW1wbVZqY08KSmxyN1JGQmFDdi9OOWlJemd3dU9sUVU4QmZqU3E5dWJtRWp0dExWR2hGekQ0b1pjUFdCamtWY1ZhRE5pVVpxVQptSU85T3psankvaGRQMWM1Y3Rib0ducklkK3VIVnplTlB4MHJYaUZJSGtDVFhPbnQ2RWNHSTVsdGxpcUJVWlNtClV0NHlmcG9wYUNLVVBVd0h2OFlNODNvK3dHb2FVNDlWOFFyNmRUWitycXVRSUpDczFYMTh2ZFpQRERNUzRPT2IKRVFDcXA1SjJGYmV1MitRQzV1UHZIdGd4bTU2anlhK3pIWHppclFJREFRQUJBb0lCQUN1bnZrRzdlT09ET2hJRgp0SzVwdGhzLzJpWE5XeTEyR0RndTJ6N0l6bFRRV0Zqb0RpUk9rbTJuSFlQYmxkbmswZFJkcm1kb0d4ZHdqajNRClNIV1B1eUlEMXBNVi9FS0VyZVVpSUN5dFRDNnFhWUhyQWQ1WWl0aTJqM1FuQklCbXlOOVI0NGFPcFVtRlhkOXgKOEJuYmoycUdIL01yUlk4N2YvYTZ3RmpZTWhacUM0MDI0bFpZL3ExK0p4a1RVOUpkOVV6RmpKMzFBeE5lVEhXWQpJUS9tS045bVNiUThoVEtnWm90aVJEYUhNWlpqWWQvYkJHRitnSEUzZ2drb1pndWg5eThOU21HUWlSZFZKRFBiClZLellTMFQzTWxHbURmT3JpUDRSUTl1dllicEE5dDN0emU0bWpmZERFcWtIbmVsZXhJTHJGbEFocmR1bUJzQ2UKaHRJbFI5RUNnWUVBMS9HWWVSWitqcW1MWlI5SWI0enJqR3NOQm5sR29iTXRwdVVNbmxrRXdVWGZRRXI2RW9QNQp6Yy9KRGFlTmZRUkNFWkVKRVg3ZlZlWkRPcGo2Nk1SVUtYWWNMWllPVG5KdnBVWjVRaVZpSGdIQWNzVjJCVGVzClg3bDdqSktMZzZvdFVibnNVQmpFMW81c0FpekNCRTVUMjl0UURNSWFCQnl2VnF0RGdRcHQ2d2NDZ1lFQTVEOEgKQWYxekFhcDVEOWl0eHQ4Y3g2YklqRlB0Z0VhYzhOa3RnWW5XcVVJWnhLbmtKTys0T0NZZlM2VWdpckdvbnhzMwpHQVlMR0NOVTRPREJBZ1hSMmJqZ043b2Z2MkdDb1l5M0hFUzNyTDVrZktJRTFJdHNxWThNVDNSOHpIVVFhbzAzCmMwaGVFeDZUZ1FCSDVOVnNvYXo0clpjL1dXLzd1NGtrVlJHdHM2c0NnWUVBbFNvSG5xMFJJczZ1d1YxSWxmV0wKeCtVeWpDUTl5L2lQTWxmSnpaL0VEeFdLejBoN1VVcmt4V3dnZjFRY0FoMXMzZUdIbUJSQmhYNlhOZVR5Zk5NUgpKOHEwVUREMUZPOHJlOGtnZmJhQS9pVkxvSHdSdUN6cTN2eXJBVUZCS2VQbGhpeWR0ZjVHQ2NjN2lJME9RQmN6CkNnMkdVQ25MK3NjdHZ2cHltTEp4bHdVQ2dZQkx1bDJvMjE1OC93S0xyMmg0d3kzWlVBemFBajZhZ05NeFZkMHoKVFhoYlVBTWNyUUYwLzlRdlRQYTFNbVJKb0FoQ1FkVlZzeXViSnAzU3ZyOUszSU56cVZNN0toVytlYXZOemRJegpIdG1TQnRsd1FKRTVzOGlwdVR4c1lFbkh6RTlXQ3VTSzYwZkxNQ25nY3lkblZTaGx1KzRHS2xocVpDMHhXNThpCldtczNZUUtCZ0MxUE03RXlPaTh6WThuWXd6ekc5ZEFYdmZIUm4yRzJ6elQvYnl0bXFyOFlEa3hzR2pkdzMzMDEKMGlONlR5SHpmY3crMk5YWGtobUZzWHJRWUp2Q1BheHNkbGwxY1lRcHUrZUZtTXgwaHNwTGdUUy9IdU9uZFdFNQpjS1gwdXZESmlTNkNHeVlPb0xPZnlhT0VlVVFkbkZDVWdIM1prdWZoQXdHcWpYUVBJKzBvCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+kind: Secret
+metadata:
+  annotations:
+    cert-manager.io/alt-names: minio.prof-stankin.ru
+    cert-manager.io/certificate-name: minio-api-tls-prod
+    cert-manager.io/common-name: minio.prof-stankin.ru
+    cert-manager.io/ip-sans: ""
+    cert-manager.io/issuer-group: cert-manager.io
+    cert-manager.io/issuer-kind: ClusterIssuer
+    cert-manager.io/issuer-name: letsencrypt-prod
+    cert-manager.io/uri-sans: ""
+  labels:
+    controller.cert-manager.io/fao: "true"
+  name: minio-api-tls-prod
+  namespace: default
+apiVersion: v1
+data:
+  ca.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMxVENDQWIyZ0F3SUJBZ0lSQUpnMWdKRjdWazl0bUJOS1ZzYVIwUlV3RFFZSktvWklodmNOQVFFTEJRQXcKQURBZUZ3MHlOakF4TURReE5URXpNekphRncweU5qQTBNRFF4TlRFek16SmFNQUF3Z2dFaU1BMEdDU3FHU0liMwpEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUURlNGpvVVFSYmszM0hQZG5OVUlORWZZTHVjVTg0ajlTWVJrMGx3CjdiL1Q3SGFRTGZ2UXRZNUM2b1JOWUx1bXY0QmlWSTJkOUp6ZHpVWHRRTTlpUUpMTUxTbTlMVUI3Z0l3aXdkWG8KcUJOemgyQS9hWHBRRHgzYnp1MmJhTFlkeXJhQjN6ZzlIT0VaN0pPY1lkYmNUL2plcEE1dEk0WFlkK2JsaUdEYQo3UHhXZFJFcnZYRWRBbWtLZWRsVHlwa2dkblNMc2ZUczU0MVg1L25tSE83RVE5eGlVeUJTcW9OcGJ5R2pMTFZ2ClhEMFIyQ21Zai9iSnpNY3lOWEQ2ZEI0SUFra2grYUhTbHFpeU04OVoxeThCREdWVGlsaTduYkpqODlnVW9tenQKVlhVVE1ESDBBQkdpQVYrZCtVMlhDa0dHaWE0UlVUZ1NwUlh3SFpVUitxSnQ1RjNIQWdNQkFBR2pTakJJTUE0RwpBMVVkRHdFQi93UUVBd0lGb0RBTUJnTlZIUk1CQWY4RUFqQUFNQ2dHQTFVZEVRRUIvd1FlTUJ5Q0dtMXBibWx2CkxuUmxjM1F1Y0hKdlppMXpkR0Z1YTJsdUxuSjFNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUFQQzA0cFgyU2QKbzFmM2g1TnZaZkFsSkhabXpBZVZvZVQwUWxjVWVBZi9GTlMxVzM5VTk5Q1NUNnhMQTU1WjNCbEpqdm9udllzMQpuM1F1RnBnbEc4RnhxR01LRjV2TDhJWDhCaG10T0k4LzI2a21KY3pSMU9ZVHZBbmUrL3U1MklVeWRsc20ydHhHCjBTeDdCUGR4alZ6UjRCcVdONUQwL3FvVk14ZDVuanZ3bkZJUEdFWFlyVXZHN1BFMk96djArcHZlZ2hMVEtoYkoKdnZTSGxVZ1FNd3hiOFNhS255ZWtkSHlzOTlaa0JhcW5nR3M5MDJGdWI2TDZicklBUHFPNE45d2lSTUtlRElKcwpMamdHRXE2SlEzV043Wk8yb2paNnFYK1dFWUFNNm1kVlZyZ2VBaFU3Nzh2ZjdFczZ4Q1VPcnpiK0lHVGU4amxzCkp6WDVWaEpwWlpoWAotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMxVENDQWIyZ0F3SUJBZ0lSQUpnMWdKRjdWazl0bUJOS1ZzYVIwUlV3RFFZSktvWklodmNOQVFFTEJRQXcKQURBZUZ3MHlOakF4TURReE5URXpNekphRncweU5qQTBNRFF4TlRFek16SmFNQUF3Z2dFaU1BMEdDU3FHU0liMwpEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUURlNGpvVVFSYmszM0hQZG5OVUlORWZZTHVjVTg0ajlTWVJrMGx3CjdiL1Q3SGFRTGZ2UXRZNUM2b1JOWUx1bXY0QmlWSTJkOUp6ZHpVWHRRTTlpUUpMTUxTbTlMVUI3Z0l3aXdkWG8KcUJOemgyQS9hWHBRRHgzYnp1MmJhTFlkeXJhQjN6ZzlIT0VaN0pPY1lkYmNUL2plcEE1dEk0WFlkK2JsaUdEYQo3UHhXZFJFcnZYRWRBbWtLZWRsVHlwa2dkblNMc2ZUczU0MVg1L25tSE83RVE5eGlVeUJTcW9OcGJ5R2pMTFZ2ClhEMFIyQ21Zai9iSnpNY3lOWEQ2ZEI0SUFra2grYUhTbHFpeU04OVoxeThCREdWVGlsaTduYkpqODlnVW9tenQKVlhVVE1ESDBBQkdpQVYrZCtVMlhDa0dHaWE0UlVUZ1NwUlh3SFpVUitxSnQ1RjNIQWdNQkFBR2pTakJJTUE0RwpBMVVkRHdFQi93UUVBd0lGb0RBTUJnTlZIUk1CQWY4RUFqQUFNQ2dHQTFVZEVRRUIvd1FlTUJ5Q0dtMXBibWx2CkxuUmxjM1F1Y0hKdlppMXpkR0Z1YTJsdUxuSjFNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUFQQzA0cFgyU2QKbzFmM2g1TnZaZkFsSkhabXpBZVZvZVQwUWxjVWVBZi9GTlMxVzM5VTk5Q1NUNnhMQTU1WjNCbEpqdm9udllzMQpuM1F1RnBnbEc4RnhxR01LRjV2TDhJWDhCaG10T0k4LzI2a21KY3pSMU9ZVHZBbmUrL3U1MklVeWRsc20ydHhHCjBTeDdCUGR4alZ6UjRCcVdONUQwL3FvVk14ZDVuanZ3bkZJUEdFWFlyVXZHN1BFMk96djArcHZlZ2hMVEtoYkoKdnZTSGxVZ1FNd3hiOFNhS255ZWtkSHlzOTlaa0JhcW5nR3M5MDJGdWI2TDZicklBUHFPNE45d2lSTUtlRElKcwpMamdHRXE2SlEzV043Wk8yb2paNnFYK1dFWUFNNm1kVlZyZ2VBaFU3Nzh2ZjdFczZ4Q1VPcnpiK0lHVGU4amxzCkp6WDVWaEpwWlpoWAotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBM3VJNkZFRVc1Tjl4ejNaelZDRFJIMkM3bkZQT0kvVW1FWk5KY08yLzAreDJrQzM3CjBMV09RdXFFVFdDN3ByK0FZbFNObmZTYzNjMUY3VURQWWtDU3pDMHB2UzFBZTRDTUlzSFY2S2dUYzRkZ1AybDYKVUE4ZDI4N3RtMmkySGNxMmdkODRQUnpoR2V5VG5HSFczRS80M3FRT2JTT0YySGZtNVloZzJ1ejhWblVSSzcxeApIUUpwQ25uWlU4cVpJSFowaTdIMDdPZU5WK2Y1NWh6dXhFUGNZbE1nVXFxRGFXOGhveXkxYjF3OUVkZ3BtSS8yCnljekhNalZ3K25RZUNBSkpJZm1oMHBhb3NqUFBXZGN2QVF4bFU0cFl1NTJ5WS9QWUZLSnM3VlYxRXpBeDlBQVIKb2dGZm5mbE5sd3BCaG9tdUVWRTRFcVVWOEIyVkVmcWliZVJkeHdJREFRQUJBb0lCQURDMFBMN0tUbWRyRUdLbQpYcU5Hbkl2L3hsOXR6TUQ4dy9uWk5wWXZ6ZGhRZHNRZzJFTU9PVzBUOUI4NGdTajU5ZU1HMlA5b1FaTVNWVEo0CkZCbERSUkRLMmJFV0gxNGRoQUhnVzQ4QWsyZU9jSkRLeXNpTjFSZUFTMW5IY3V4bHJLWUtraTZBamd2dEw0QmYKdk9UZHNPTnQ5QjBUUXg4L2JEeENKZkFSRXo4TTQzQXgyblBHL2l3LzRBcllxNTkyZjNUUVFEVnMxTHRBRDNsZgp2NWVvajlTL3FpTUFRRGdXNUV2TWJpM0lUUkdiKzJSMjVWSHRlZ1J4Si80ZmlSUjEvOEsxcitZNVlnSUV2aHZvCnIwWHR1T0F6WHBmTzY0K2hvVmI5a0dtN2ZnbmljYUxQMzB1T2hPa2JocmsvQzVjMEQ1M0NFYi8wN0xIVDhGRDMKalhKUmFDa0NnWUVBNnpXL3oxdGRURlJPbFNpUGdMQmMwNWZmdGhNSEZTenVRNEZSUUxLaXFDa2R6UTgvRFJNdAp3ZVFsZjVhQ1RONTVDeWNIVzlwMUk5cTdMbDZvemNXaDBzc2pBNFhDZkpiV3o0RkoyNTFQNUd4OTYyWjlTOThRCmJQS1d2RUluODZyZXBLK3B2RzI5Wm53b1pQZ2NqVXl1d2o1eVVlVUQzc1c3Q3ltb0luYTFsN3NDZ1lFQThwV1EKTHpKY3NxK0VzYVZCcWxhU1BRNS9UUnFheE1oRXk4UDJjSWh1Q05uaXExeUwyVzgrYXVnQkpwencxd1BrZEcrcgpYQllzSElGeWJEeUdQTlFMc09mYmFvUHZXM2lBT3Z4RmpRdk9IVjhHM3hMSHRqZTNBL0ZJTmVSZFFZZkZmRG9JCkd6QjZxamVIQTFCQzFPcWVKWU1tYVV3UGJTTWRzanl5MStHYjgyVUNnWUJCT09WWVhaQndnd3hMWmpUc3pYcmcKSGNRbUcvNmh5NVRDV1ZDcnJSMVhuaGNxYnFqZ09rbzg4c1BITG5neFVwdWtFUTJFVmY2WGs2YkdBKyt4SjdWbwoyM1Y1RzVWRHNSd2Q3RThMdkFLVVo5VSsrbXVTSjJmSm5qZFlPc3dUVUhWdW0xdG82ZEZVWXVkY29FUmlsam43Cm1ROWdVQzRUanliL3dHeGtLaURPMHdLQmdCc3BWKzJRN0FRdDF1TzFKemNWWG1acnV5RTgrMXRST1RLL2pGWnAKVURpNWZNSEhLUGw5bFRXUEtLSFVMTHRHZWt2M1BPNmdwT3ZFS3JXbnlUZ0NYaFMrd1RpWjhURUN1d2pmdWtIaQpzbjlqWm5lUHVNRFVXQytlMG9FR1F0TFZpdTB2Nmp4eEh5cno4TEFVU29kZ2hiaVppTEY5akxTaG0rK2JFRU5QCnhaQnBBb0dBU3A2K1dFOXNFeTh1cHc3a3F3czJIZ2VSQUxINVQrK1pWWDlkUUdZTlQwM2V0NkJ6Tjg0SC9XWkoKb1J6c0F6Q2ZWd1RBSEtYN1A3M0l4bTNqUVA5MDd2U00yZGtUNFFiMUx3c1B2azlDeDllZ0l6cCtjTXRkSWlZbApDRUFJdG4zU2JpK3ZvY05yT1pKNnBHMjhzdU92RVpNTTM5Wk8rLzBHT2ROeXFXTDBYRms9Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+kind: Secret
+metadata:
+  annotations:
+    cert-manager.io/alt-names: minio.prof-stankin.ru
+    cert-manager.io/certificate-name: minio-console-tls
+    cert-manager.io/common-name: ""
+    cert-manager.io/ip-sans: ""
+    cert-manager.io/issuer-group: cert-manager.io
+    cert-manager.io/issuer-kind: ClusterIssuer
+    cert-manager.io/issuer-name: selfsigned-issuer
+    cert-manager.io/uri-sans: ""
+  labels:
+    controller.cert-manager.io/fao: "true"
+  name: minio-console-tls
+  namespace: default
+apiVersion: v1
+data:
+  ACCESS_TOKEN_SECRET: c3VwZXItc2VjcmV0LWtleS1oZXJl
+  AUTH_KEY: c3VwZXItc2VjcmV0LWtleS1oZXJl
+  JWT_SECRET: c3VwZXItc2VjcmV0LWtleS1oZXJl
+  JWT_SECRET_KEY: c3VwZXItc2VjcmV0LWtleS1oZXJl
+  POSTGRES_PASSWORD: cGFzcw==
+  S3_ACCESS_KEY: bWluaW9hZG1pbg==
+  S3_SECRET_KEY: bWluaW8xMjM=
+kind: Secret
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: personal-app:/Secret:default/personal-app-secrets
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Secret","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"personal-app:/Secret:default/personal-app-secrets"},"name":"personal-app-secrets","namespace":"default"},"stringData":{"ACCESS_TOKEN_SECRET":"super-secret-key-here","AUTH_KEY":"super-secret-key-here","JWT_SECRET":"super-secret-key-here","JWT_SECRET_KEY":"super-secret-key-here","POSTGRES_PASSWORD":"pass","S3_ACCESS_KEY":"minioadmin","S3_SECRET_KEY":"minio123"},"type":"Opaque"}
+  name: personal-app-secrets
+  namespace: default
+type: Opaque
+---
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZKekNDQkErZ0F3SUJBZ0lTQm82aHN3TFhCa1pHb0NHQUtkdjF5dkZiTUEwR0NTcUdTSWIzRFFFQkN3VUEKTURNeEN6QUpCZ05WQkFZVEFsVlRNUll3RkFZRFZRUUtFdzFNWlhRbmN5QkZibU55ZVhCME1Rd3dDZ1lEVlFRRApFd05TTVRJd0hoY05Nall3TVRFd01USXpPVEkwV2hjTk1qWXdOREV3TVRJek9USXpXakFzTVNvd0tBWURWUVFECkV5RmhjR2t0Y0dWeWMyOXVZV3d1ZEdWemRDNXdjbTltTFhOMFlXNXJhVzR1Y25Vd2dnRWlNQTBHQ1NxR1NJYjMKRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEQVhVcHRTaWRhbTQ1alhjd0hBSnUyOHhEa1JnN1V2TUhDbWlJTgowaFo0VHRocUYzcHMrRmNiQ0p1UWYzWHgwY2gxNDhiS3VwenJkK2NneUFqTDQwZXlaY2M0TkpjT2FOUi9jYzh4CmxkaVptQ0o5YlhhdEJpQWxHdExlTzFDdDg0YnhlZjZ1dnZnOEphNUFQdDZLZng4UGlyOWlvT1lRN1QwVWhCUkEKMndCVkVITzVpWitYZCs2ZTc2S1JMT25aNUd2WTI5WE1wWWVteGdmellvVzJ6WjhXZ0NHMFdtK3JDZVVOVFF1awp4VXViMHVPSmhXb3ZFc1VVY3ZrNEEzZ0xTSG1sbDNRWThMM3cyWDhnUksray9zaFFYSmRjd0JTQjV0RGQ5K3pCCmNLM3pHSGdsMlhkYkh4T0dnMmFWMkd4VkNhZG56R2VNYzNTekhzeGJOUHp5MjJqdEFnTUJBQUdqZ2dJNk1JSUMKTmpBT0JnTlZIUThCQWY4RUJBTUNCYUF3SFFZRFZSMGxCQll3RkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQwpNQXdHQTFVZEV3RUIvd1FDTUFBd0hRWURWUjBPQkJZRUZGQllSZ2doOEZRc3dqM1FiNkkxcUVoTCtzZWFNQjhHCkExVWRJd1FZTUJhQUZBQzFLZkl0am04eDZKdE1yWGcrK3R6cEROSFNNRE1HQ0NzR0FRVUZCd0VCQkNjd0pUQWoKQmdnckJnRUZCUWN3QW9ZWGFIUjBjRG92TDNJeE1pNXBMbXhsYm1OeUxtOXlaeTh3TEFZRFZSMFJCQ1V3STRJaApZWEJwTFhCbGNuTnZibUZzTG5SbGMzUXVjSEp2WmkxemRHRnVhMmx1TG5KMU1CTUdBMVVkSUFRTU1Bb3dDQVlHClo0RU1BUUlCTUM0R0ExVWRId1FuTUNVd0k2QWhvQitHSFdoMGRIQTZMeTl5TVRJdVl5NXNaVzVqY2k1dmNtY3YKT1RJdVkzSnNNSUlCRFFZS0t3WUJCQUhXZVFJRUFnU0IvZ1NCK3dENUFIOEE0eU9OOG8yaWlPQ3E0S3p3K3BESgpoZkMydi9YU3BTZXdBZndjUkZqRXR1Z0FBQUdicUNDNVF3QUlBQUFGQUM3eW9CSUVBd0JJTUVZQ0lRQzYxR05nClQ1TDBGem1HL0ZoVkVSZGkwa2hnUmdKMUViUVdlcnljUTd1K3Z3SWhBSmJiWHVkakVXWkhGRktVSFBhTjk2MEcKMUJYczNud25INFVEdEJQdFhHa2NBSFlBU1p5YmFkNGRmT3o4TnQ3TmgyU211RnV2Q29lQUdkRlZVdnZwNnluZAorTU1BQUFHYnFDQytvUUFBQkFNQVJ6QkZBaUJNL0xIaHB2MmUyQmcyQTZ3L2N1S2w4dHZEUkFleUJUYnU3MEFwCnNmUUUzZ0loQVBraGJqOGo2bGY5QXhoeVdJemluTGxuTHlTQWlyZUw5eTRmTDFvcnZ5UDRNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFEWjQzVldRQmd2dE15UUdTcHVwd2NUaFI0bENhK0N1SjE0QkpRZUh1ZHJxamFzSDA3WApiaXBtWEdEYmJ1bk53U0JMdVNtb1drazltc0FwQ0kvU0IrbE9zaU5za3RxZitoSWpUOTBMTnR0WnV2ZGI0MWZGCkN2Rmk5TWttQ1RVTzV4ZWI1N2J0aGtmMnJQb0xDSFVOY0xCN0wzZUlOZHhNVzJHdCtneGJYWG1JMFh3ckduM2sKWG5NZktMOTB1T1p0UzlzZlowN3NHajBUaVpsWWlLZEpZQk5JeWQyNTMvZFZKcnRFTmVDRUowZE9UNEtrNGt3RQpXaDhodWhFcWpoN2JOUVhpbGc1SS9xMlhRazMrT01ZcEwwanlDQWErVy9DZ3NtZDR3amc0UzUyWHhxbGNSKytSCm1mK1lnMWdKZEF6MGsrQ2s0VGpORGhwekcyb0NQNjF6MGR6RAotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCi0tLS0tQkVHSU4gQ0VSVElGSUNBVEUtLS0tLQpNSUlGQmpDQ0F1NmdBd0lCQWdJUkFNSVNNa3R3cWJTUmNkeEE5K0tGSmp3d0RRWUpLb1pJaHZjTkFRRUxCUUF3ClR6RUxNQWtHQTFVRUJoTUNWVk14S1RBbkJnTlZCQW9USUVsdWRHVnlibVYwSUZObFkzVnlhWFI1SUZKbGMyVmgKY21Ob0lFZHliM1Z3TVJVd0V3WURWUVFERXd4SlUxSkhJRkp2YjNRZ1dERXdIaGNOTWpRd016RXpNREF3TURBdwpXaGNOTWpjd016RXlNak0xT1RVNVdqQXpNUXN3Q1FZRFZRUUdFd0pWVXpFV01CUUdBMVVFQ2hNTlRHVjBKM01nClJXNWpjbmx3ZERFTU1Bb0dBMVVFQXhNRFVqRXlNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUIKQ2dLQ0FRRUEycGdvZEsyK2xQNDc0QjdpNVV0MXF5d1NmKzJuQXpKK05wZnM2REdQcFJPTkM1a3VIczBCVVQxTQo1U2h1Q1ZVeHFxVWlYWEwwTFFmQ1RVQTgzd0VqdVhnMzlScGxNalRtaG5HZEJPK0VDRnU5QWhxWjY2WUJBSnB6CmtHMlBvZ2VnMEpmVDJrVmhnVFU5RlBuRXdGOXEzQXVXR3JDZjR5cnF2U3JXbU1lYmNhczdkQTg4MjdKZ3ZscEwKVGhqcDJ5cHpYSWxoWlo3KzdUeW15MDV2NUo3NUFFYXoveGxOS21PemptYkdHSVZ3eDFCbGJ6dDA1VWlERHdoWQpYUzBqblY2ai91amJBS0hTOU9NWlRmTHVldllubnVYTm5DMmk4bitjRjYzdkV6YzUwYlRJTEVIV2hzRHA3Q0g0CldSdC91VHA4bjF3Qm5XSUV3aWk5Q3EwOHloRHNHd0lEQVFBQm80SDRNSUgxTUE0R0ExVWREd0VCL3dRRUF3SUIKaGpBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjREFnWUlLd1lCQlFVSEF3RXdFZ1lEVlIwVEFRSC9CQWd3QmdFQgovd0lCQURBZEJnTlZIUTRFRmdRVUFMVXA4aTJPYnpIb20weXRlRDc2M09rTTBkSXdId1lEVlIwakJCZ3dGb0FVCmViUlo1bnUyNWVRQmM0QUlpTWdhV1BicG0yNHdNZ1lJS3dZQkJRVUhBUUVFSmpBa01DSUdDQ3NHQVFVRkJ6QUMKaGhab2RIUndPaTh2ZURFdWFTNXNaVzVqY2k1dmNtY3ZNQk1HQTFVZElBUU1NQW93Q0FZR1o0RU1BUUlCTUNjRwpBMVVkSHdRZ01CNHdIS0Fhb0JpR0ZtaDBkSEE2THk5NE1TNWpMbXhsYm1OeUxtOXlaeTh3RFFZSktvWklodmNOCkFRRUxCUUFEZ2dJQkFJOTEwQW5QYW5aSVpUS1MzclZFeUlWMjlCV0VqQUsvZHV1ejhlTDVib1NvVnBIaGtrdjMKNGVvQWVFaVBkWkxqNUVaN0cyQXJJSytnemhUbFJRMXE0RktHcFBQYUZCU3BxVi94YlViNVVsQVhRT25rSG4zbQpGVmorcVl2ODcvV2VZK0JtNHNOM094OEJoeWFVN1VBUTNMZVo3TjFYMDF4eFFlNHdJQUFFM0pWTFVDaUhtWkwrCnFvQ1V0Z1lJRlBnY2czNTBRTVVJV2d4UFhOR0VuY1Q5MjFuZTdubHVJMDJWOHBMVW1DbHFYT3NDd1VMdytQVk8KWkNCN3FPTXh4TUJvQ1VlTDJMbDRvTXBPU3I1cEpDcExOM3RSQTJzNlAxS0xzOVRTclZoT2srN0xYMjhOTVVsSQp1c1EvbnhMSklEMFJoQWVGdFBqeU9DT3NjUUJBNTMrTlJqU0NhazdQNEE1alg3cHBta2NKRUNMK1MwaTNrWFZVCnk1TWU1QmJyVTg5NzNqWk52L2F4NitaSzZUTThqV21pbUw2b2Y2T3JYN1pVNkUyV3FhenpzRnJMRzNvMmt5U2IKemxoU2dKODFDbDR0djNTYllpWVhuSkV4S1F2emY4M0RZb3RveDNmMGZ3djd4bG4xQTJaTHBsQ2IwTytsL0FLMApZRTBEUzJGUHhTQUhpMGl3TWZXMm5OSEpyWGNZM0xMSEQ3N2dSZ2plNEV2ZXViaTJ4eGErTm1rL2htaExkSUVUCmlWREZhbm9Dck1WSXBRNTlYV0hremRGbW9IWEhCVjdvaWJWakdTTzdVTFNRN01KMU56NTFwaHVESlNnQUlVN0EKMHpyTG5PckFqL2RmcmxFV1JoQ3ZBZ2J1d0xaWDFBMnNqTmpYb1BPSGJzUGl5K2xPMUtGOC9YWTcKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBd0YxS2JVb25XcHVPWTEzTUJ3Q2J0dk1RNUVZTzFMekJ3cG9pRGRJV2VFN1lhaGQ2CmJQaFhHd2lia0g5MThkSElkZVBHeXJxYzYzZm5JTWdJeStOSHNtWEhPRFNYRG1qVWYzSFBNWlhZbVpnaWZXMTIKclFZZ0pSclMzanRRcmZPRzhYbitycjc0UENXdVFEN2VpbjhmRDRxL1lxRG1FTzA5RklRVVFOc0FWUkJ6dVltZgpsM2Z1bnUraWtTenAyZVJyMk52VnpLV0hwc1lIODJLRnRzMmZGb0FodEZwdnF3bmxEVTBMcE1WTG05TGppWVZxCkx4TEZGSEw1T0FONEMwaDVwWmQwR1BDOThObC9JRVN2cFA3SVVGeVhYTUFVZ2ViUTNmZnN3WEN0OHhoNEpkbDMKV3g4VGhvTm1sZGhzVlFtblo4eG5qSE4wc3g3TVd6VDg4dHRvN1FJREFRQUJBb0lCQVFDSFFSRVR4dy9rcFh0NApZbnNTY1ZzTFI5eVlwS25JNnU5UjVRNE1xYXNpN0UwK1MwUEpXdFBrTGlremNHdDluQU5XNE5EbHVsQ2JQN05ECldXTFYrUGh3ZHgrY1pWM1F3K1NsdDEvM2ZXVE9taW1tQjFGcVZ1UkRNcGtScUtNUnJDazFvSkZ5VE5ROWRrRU8KNnlXT085T2JHZk4zWmFwZVBIQzEvQ2hCY2JyS0U0MVRDVmVRM0JQcVlwYlJjY3pybDJyc1hSQzJ0WldrZlhSbQo1UXAxVEpZdkhPQTQrWUZNRTBHOUZ3eHRsazhCTE45MEJBRXZJRWswTzRBRktDcThjSVhkb2J1V3BOTlFDdkxzCldzbmJ2dHh2MVVRWEQwOHBsTCtMbDViQjhUcXQ5a2dDTWdlTmt4TjVWR2V3YlJSMUF3YTF4c1dwT3BzSmpFcjQKMGdyWjNJQUJBb0dCQU1hNEs2T2RxZ2RiejlMeE0zWGpXcWZIN05JTXcwc2tuTWxLd0UzNGwwaGhjZTN6eTFUVQo5THZBMzZzbEZsTDIwL3lZZmZuYlVWcXhtU0tOaWpmdTdmR20zTm5qNUd2Z0x0ZXRhRUxvakJTcHhPR1NlbkNpCm1tZHlUbVJTblM4ZjBaeklGT3lqZGMzVFRiYWtsM2kzbzBOdDFaWndxa09tOUtlbDRwejZDemgxQW9HQkFQZlEKTEs1UnNmYzU3cnpZME1BK2c1aXEyRVo3OEFqTzJ1SmVMbU5VZS9hN0svdk8vbXp3UjVMT3gwZVZpUElkTWtiQwpRUmxKblRFSEYybzN3dkNlVmVWdGNUZkN2QlprdytITzM2M2Eralk4WEdaQlJuNlVFNlpsZlVEVERHY3Zjd0JpCngxVUgzbXdIOTBnWDVOWHFFY3JGbjJBaGVTcjY0U1A0QVVtdS9wK1pBb0dBUkxyd1JQL0VEaFdBTk5vOXpUbGMKWW9sd2JGb0R0ZHFzNjZZU0N5VysxVWIyeTdFMWsxcXdacnZYNEc3TVlOZUVER3FGcjhSZVIvc0RGd05UV2ZNbQpreHorWjlJOWI5NHk5Vi9CbnRxbGtJUURWMjE5TWJYYnA0bk9lVDVscFNYaEx0TzVBUHVzUkFzZ1p0cFlsV1VXCmI3enVVY0VYOHB3dEpFcm9yUmlDaHYwQ2dZRUFsd3pxSHpzbXVpWXkwaU5xWXJQNExMZCthc0FpMkl1VnVjTmsKalNFekNucWVYYmVYTjduaU5xY1pxeFdIeXVSbS8rQnFJOHJPS05ORXYzYkx1VFVaOEdXY1REdkR2L2FkdTJjSQp5b1VlWEs3QU40ZjBPelZ4SU16ZDR3U0JtK2U5Tm0vL1JtSXNmamNBMEkzWDYxZm9qbXVWTU5oV2JnOUw2a3ZDCkpUS29lNGtDZ1lCSXJjcnJORmJBUlN3SnVORWRSb01URnAwSU85QmxNUExHZkVFWnNVSGoySWpMaTEzMDEyMm8KZ1RzZjB2K25SV2Nab3NlMDdCd3dvRm85ajlOWURQQkR2d0VmTGJYMUpPekp6U1pxRWNCSGdGTTVQa3hTeTJRMwpVVkJ0b1BxODBNQ0hndU9uM0Q0eW9Oc3N4NFVyeWdpWWFKS1hLaldrZTEvUW03NjBpRDE4elE9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+kind: Secret
+metadata:
+  annotations:
+    cert-manager.io/alt-names: api-personal.prof-stankin.ru
+    cert-manager.io/certificate-name: personal-app-tls
+    cert-manager.io/common-name: api-personal.prof-stankin.ru
+    cert-manager.io/ip-sans: ""
+    cert-manager.io/issuer-group: cert-manager.io
+    cert-manager.io/issuer-kind: ClusterIssuer
+    cert-manager.io/issuer-name: letsencrypt-prod
+    cert-manager.io/uri-sans: ""
+  labels:
+    controller.cert-manager.io/fao: "true"
+  name: personal-app-tls
+  namespace: default
+apiVersion: v1
+data:
+  BOT_TOKEN: ODE5OTY4NDQ5NDpBQUVPTzlrRjB4SXpmdm9zQ2c1TnNxLVUxNzBKbjhid1lxcw==
+kind: Secret
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: prof-assistant2:/Secret:default/prof-bot-secrets
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Secret","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-assistant2:/Secret:default/prof-bot-secrets"},"name":"prof-bot-secrets","namespace":"default"},"stringData":{"BOT_TOKEN":"8199684494:AAEOO9kF0xIzfvosCg5Nsq-U170Jn8bwYqs"},"type":"Opaque"}
+  name: prof-bot-secrets
+  namespace: default
+type: Opaque
+---
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZERENDQS9TZ0F3SUJBZ0lTQm1EQmtEaGFUdWlkWWVXaTlrOERJckxHTUEwR0NTcUdTSWIzRFFFQkN3VUEKTURNeEN6QUpCZ05WQkFZVEFsVlRNUll3RkFZRFZRUUtFdzFNWlhRbmN5QkZibU55ZVhCME1Rd3dDZ1lEVlFRRApFd05TTVRNd0hoY05Nall3TVRBM01URTFNVEUzV2hjTk1qWXdOREEzTVRFMU1URTJXakFmTVIwd0d3WURWUVFECkV4UjBaWE4wTG5CeWIyWXRjM1JoYm10cGJpNXlkVENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFEZ2dFUEFEQ0MKQVFvQ2dnRUJBTGUrbUU3ekhrZFNHelhsYTBCbm5aQWlkSjJqWDFjZnEra1BrUGxXbXgzbWh0SXl3eHRKTTdvTwo2bGxJVUJLMFZYM2FxeTRJQ0VxazVySTlHRGVVN25GNVJDMTY3L05vRXZUZThXcWV0WlBVRmI4YzF6ZDFwSVNTClRGL0x4Vks2bzFzbnlEWEd6M3gwUWIwNWJ3VmV6czNRczdoY1R0QzJ4T1ZEN2ExTmUxUGxiZ1d1MU9jY2pXSXcKZGxCZUlRc1dGRHJWd0RUekFsTlRVZVRWQVZKWHFCdTZ3NmJjYitqK1AyYWtJV1lScDA2cHpXLzhsK3daTkoyMgpMVFBRMFQ4Y1IwejNVNDkrQ3hHZVd1cTZ5ZkxWUkcxeUFLY3VSKzlwaUJ3SGZ2WDVySHoybk1taVNEVnlRckhZCitHQ1ZLRkhrMzVPSHBTSFBEd2FIRzNkYUxqU0pxTjhDQXdFQUFhT0NBaXd3Z2dJb01BNEdBMVVkRHdFQi93UUUKQXdJRm9EQWRCZ05WSFNVRUZqQVVCZ2dyQmdFRkJRY0RBUVlJS3dZQkJRVUhBd0l3REFZRFZSMFRBUUgvQkFJdwpBREFkQmdOVkhRNEVGZ1FVeDEvTlFqUGlyL3crcG52clE4N01OUGpGTUxBd0h3WURWUjBqQkJnd0ZvQVU1NnVmCkR5d3pvRlBUWGs5NHlMS0VEanZXa2pNd013WUlLd1lCQlFVSEFRRUVKekFsTUNNR0NDc0dBUVVGQnpBQ2hoZG8KZEhSd09pOHZjakV6TG1rdWJHVnVZM0l1YjNKbkx6QWZCZ05WSFJFRUdEQVdnaFIwWlhOMExuQnliMll0YzNSaApibXRwYmk1eWRUQVRCZ05WSFNBRUREQUtNQWdHQm1lQkRBRUNBVEF1QmdOVkhSOEVKekFsTUNPZ0lhQWZoaDFvCmRIUndPaTh2Y2pFekxtTXViR1Z1WTNJdWIzSm5MemN4TG1OeWJEQ0NBUXdHQ2lzR0FRUUIxbmtDQkFJRWdmMEUKZ2ZvQStBQi9BSEYrbGZQQ09JcHRzZU9FU1QweDRWcXBZZ2gyTFVJQTRBVU0wR2UxcG1IaUFBQUJtNWlCbFlRQQpDQUFBQlFBR1E2Y1hCQU1BU0RCR0FpRUE5UU1YU012UzlPM1dySWgyYUtKRXpieURpRDZqYzQvWjRrWDlZUTdiCjc5WUNJUUN6cGF0aUc2S3FQZGdRR0hrSllQdzh2dlA0YmYybkxKd0F0amZVaW5RK0hBQjFBTkZ1cWFWb0IzNW0KTmFBL042WGR2QU9sUEVFU0ZOU0lHUFhwTWJNank1VUVBQUFCbTVpQm5aY0FBQVFEQUVZd1JBSWdFL1RibGFSMQp0a3Y5ODBwSnZrZzhCTGNkU2FEaHhRT2kxNnNUQUJxUlVpb0NJRTNieUhraHBlTGI0dVVZMUNNZjlUQm5qNWIxCnI4a0h2TTE5dDJoY0lLMXBNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUFiYXowSXl2ZEo3MWhlUFdPRml3NmwKaFg4VjI0Q2t2dXI2WktGdGNWR2xld25rRS8vK3A0alVkeVJTWjlHYkpvazZQMk1obVFzYy9rVE5kdkxCSEhHYgpUL3owUEczV3BUMkoxL0pYblEzcEFoSDZSVVMxU1pvbWlEK3dSRStYQWFpZlc2VVhVU0ZrYTcwdWFhRkRQMTBZCk5qS0lPZnk5VWNmK0NKRGl3ZmFMQnduUGx5aWZTR1VzT3BuVno4b2hEeUdhMmg5SHdRdnZDVjJtbThvSUFlVzUKY01mZllWVThoaGpRUVNmVlRoKzNvY0t2dFM0THdPWlAyZXQ3WnQzN0xVbjdtYzVveDgrYkNUdjl0SURVcFZoRApZbW53b3VXL0U1b25LNEh6QmdzU1dFNm1OWG5VWjFPeFdiR0J1ck1QRVg0aGUvOUtFQit6cHhjeG53U3NLbExVCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0KLS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZCVENDQXUyZ0F3SUJBZ0lRV2dEeUV0alV0SUR6a2tGWDZpbURCVEFOQmdrcWhraUc5dzBCQVFzRkFEQlAKTVFzd0NRWURWUVFHRXdKVlV6RXBNQ2NHQTFVRUNoTWdTVzUwWlhKdVpYUWdVMlZqZFhKcGRIa2dVbVZ6WldGeQpZMmdnUjNKdmRYQXhGVEFUQmdOVkJBTVRERWxUVWtjZ1VtOXZkQ0JZTVRBZUZ3MHlOREF6TVRNd01EQXdNREJhCkZ3MHlOekF6TVRJeU16VTVOVGxhTURNeEN6QUpCZ05WQkFZVEFsVlRNUll3RkFZRFZRUUtFdzFNWlhRbmN5QkYKYm1OeWVYQjBNUXd3Q2dZRFZRUURFd05TTVRNd2dnRWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFSwpBb0lCQVFDbFozQ04wRmFCWkJVWFljMjVCdFN0R1pDTUpsQTNtQlpqa2xUYjJjeUVCWlBzMCt3SUc2QmdVVU5JCmZTdkhTSmFldEMzYW5jZ25PMWVobjZ2dzFnN1VEakRLYjV1eDBkYWtuVEkrV0U0MWIwVllhSEVYL0Q3WVhZS2cKTDdKUmJMQWFYYmhaempWbHlJdWhyeEEzLytPY1hjSkpGelQvakN1TGpmQzhjU3lUREIwRnhMckh6YXJKWG56Ugp5UUgzbkFQMi9BcGQ5TnA3NXR0MlFuRHI5RTBpMmdCM2I5YkpYeGY5Mm5VdXBWY005dXBjdHVCenBXalBvWFRpCmRZSitFSi9COWFMckFlazRzUXBFek5QQ2lmVkpOWUlLTkxNYzZZakNSMDZDRGdvMjhFZFBpdkVwQkhYYXplR2EKWFA5ZW5aaVZ1cHBEMEVxaUZ3VUJCRERUTXJPUEFnTUJBQUdqZ2Znd2dmVXdEZ1lEVlIwUEFRSC9CQVFEQWdHRwpNQjBHQTFVZEpRUVdNQlFHQ0NzR0FRVUZCd01DQmdnckJnRUZCUWNEQVRBU0JnTlZIUk1CQWY4RUNEQUdBUUgvCkFnRUFNQjBHQTFVZERnUVdCQlRucTU4UExET2dVOU5lVDNqSXNvUU9POWFTTXpBZkJnTlZIU01FR0RBV2dCUjUKdEZubWU3Ymw1QUZ6Z0FpSXlCcFk5dW1iYmpBeUJnZ3JCZ0VGQlFjQkFRUW1NQ1F3SWdZSUt3WUJCUVVITUFLRwpGbWgwZEhBNkx5OTRNUzVwTG14bGJtTnlMbTl5Wnk4d0V3WURWUjBnQkF3d0NqQUlCZ1puZ1F3QkFnRXdKd1lEClZSMGZCQ0F3SGpBY29CcWdHSVlXYUhSMGNEb3ZMM2d4TG1NdWJHVnVZM0l1YjNKbkx6QU5CZ2txaGtpRzl3MEIKQVFzRkFBT0NBZ0VBVVRkWVVxRWltelc3VGJyT3lwTHFDZkw3Vk93WWYvUTc5T0g1Y0hMQ1plZ2dmUWhEY29ubAprN0tnaDhiMHZpKy9YdVd1N0NOOG4vVVBlZzF2bzNHK3RhWGlycnl0dGhRaW5BSEd3Yy9VZGJPeWdKYTl6dUJjClZ5cW9IM0NYVFhESW5UKzhhK2MzYUVWTUoyU3QrcFNuNGVkK1drRHA4aWpzaWp2RXlGd0U0N2h1bFcwTHR6amcKOWZPVjVQbXJnL3p4V2JSdUwrazBEQkRIRUplbm5Dc0FlbjdjMzVQbXg3anBtSi9IdGdSaGNuejB5alNCdnlJdwo2TDFRSXVwa0N2MlNCT0RUL3hERDNnZlFReUt2NnJvVjRHMkVoZkV5QXNXcG1vanhqQ1VDR2l5Zzk3RnZEdG0vCk5LMkxTYzlseWJLeEI3M0kyK1AyRzNDYVdwdnZwQWlIQ1Z1MzBqVzhHQ3hLZGZoc1h0bkl5Mmltc2tRcVZaMm0KMFBteG9iYjI4VHVjcjd4Qks3Q3R3dlByYjc5b3M3dTJYUDNPNWY5Yi9INjZHTnlScmdsUlhscllqSTFvR1lMLwpmNEkxbi9TZ3VzZGE2V3ZBNkMxOTBreGpVMTVZMTJtSFU0K0J4eVI5Y3gyaGhHUzlmQWpNWktKc3MyOHF4dno2CkF4dTRDYURtUk5acEsvcFFyWEYxN3lYQ1hrbUVXZ3ZTT0VaeTZaOXBjYkxJVkVHY2tWL2lWZXEwQU9vMnBrZzkKcDRRUkl5MHRLMmRpUkVOTFNGMkt5c0Z3Ylk2QjI2QkZlRnMzdjFzWVZSaEZXOW5Ma09yUVZwb3JDUzBLeVptZgp3VkQ4OXFTVGxuY3RMY1puSWF2aktzS1V1MW5BMWlVMHlZTWRZZXBLUjdsV2Jud2hkeDNld29rPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBdDc2WVR2TWVSMUliTmVWclFHZWRrQ0owbmFOZlZ4K3I2UStRK1ZhYkhlYUcwakxECkcwa3p1ZzdxV1VoUUVyUlZmZHFyTGdnSVNxVG1zajBZTjVUdWNYbEVMWHJ2ODJnUzlON3hhcDYxazlRVnZ4elgKTjNXa2hKSk1YOHZGVXJxald5ZklOY2JQZkhSQnZUbHZCVjdPemRDenVGeE8wTGJFNVVQdHJVMTdVK1Z1QmE3VQo1eHlOWWpCMlVGNGhDeFlVT3RYQU5QTUNVMU5SNU5VQlVsZW9HN3JEcHR4djZQNC9acVFoWmhHblRxbk5iL3lYCjdCazBuYll0TTlEUlB4eEhUUGRUajM0TEVaNWE2cnJKOHRWRWJYSUFweTVINzJtSUhBZCs5Zm1zZlBhY3lhSkkKTlhKQ3NkajRZSlVvVWVUZms0ZWxJYzhQQm9jYmQxb3VOSW1vM3dJREFRQUJBb0lCQUZ0UFkvRVg4QndST1dSMwpOZTB6a0tGbi9mdTRqRkNIZEs3RkJZNWk4NExRWkg5Z3FvU014Qi9aK2F1VXUvWVBsOHlMTmpZUjE4MEFWWVNOCng5TVhOOGM4TkIxRjBxaHJOOEJvYWlCSjdvSWdDdzZHRG8ySThORFF3eE4zOS84OHNLRkVDOEp0b2Y1KzU0eFoKVmtxYzZyaHMxbUx2dkZzTCtKeldQTzY2YW1jdDY4T0VZVlA3eU5yQ045UGNRL2RrenJhei81azBaV3pmNDBFNQo0dlVINmFqSG1yTkhjaFF4YlNYOWVQZ3VqeHVvS2tZeERCbEx0KzZqaHJBQU5ybmtTVEV2NlFBM1hHQk5FcVpIClJWTWI1bHhrdURlK1B6b0lqaExxcWVwem1YVTJDVnZFblRZYjBnVFFqeXhoSGo3YjdkRUZBMjhHajRCYXR3VjQKZ290a0FFRUNnWUVBOGJKaVFkRlY0cWZDTC81VFJzb3JBM0ZybytZdnF5TENsSXRNTzd0YTBxUTNCYnM5b3lHQgpwb25iWTdKR1NpdjFUT081aTZzL1pyTHRjUHhMZkwxT0NuWEkrdUVIZHk2cDNiSXlQV3o5dXV1YVJvdkxVYVROCnozeGlNVEtNMUFud1ZGS3pjN2dBSmlBUUl2U3phWUg5V0hPOGZlTXRmdjF6MGFrL0U4VWV1dHNDZ1lFQXdwNUIKWi9Hait0cUtUUEE1MC8vVDBEMktJYnpYV1RFbkIrdlRFVTkzVjRGUWh1L3hRdWpKbm9iTkpxeUE2anE3ZjU0WQpSTlNRK2FwdFFxSityS2RTMWR0U25QanFMMWFHS3ZGRlhGWEtBV3lnYW5ZRG8yaUs3aXhmdDE0enAwU09zSFhSCkpDUjFBTlVzK2VzSDFSSzdtU0lJL3ZlZW5tR3BSV2JhdGNwYjcwMENnWUVBb0FGUjN2U3dnTjVDUmZkK05lejgKME1pelU4dTlYdlFpRUtpdkRSUVpLajJnVjJEL2l4RlJmV2ppSG53VTRHRjlnU3Q0MkNmRVR6N0F4ZjJnRTdKWApDY0cwRGJJUGVTMGhNeTBXNldkUUNnQ1RINFRJVXdKaFpheVliSzFrWWJNNnNQZ1c2TkswOW9oZlptVE1xVnB1CjE3RzI1VGdTRkhIQnpOalljMFFaOWVVQ2dZQktRVEY1WkZRSmlVcU5VbmJ0OFVVeXhkZ25TVEx0SC9qaFo5UHYKWGQrTjdwUDMrQ0tZUWROemZjRldpU2ppdGFnR2FCNmdYRzQ0SkJOdUFpdk0ya2FidkFQSVNweW5sUjY1MGJhQwpKV1ZlcDhDSS9pQWpQK2NLT3JvR2I1WExzemV5RWpISzFYSWk4RE1wNDhmb1B5NStuZUxLelZXaTNtWkVTWnNYCkUyK0NYUUtCZ1FERWlGZkdlUHR6MGNGSTdQRkdvT1Z4cXVLMVJkeHIyYjU5clZRK0VsL1RySmV5RVI0QjNoQXoKN3hOQlU0TCtzVmo4dlZKbHp2MTNaWC9FdktBNWhpYUtiQld2ZURQcnBLYzk2M1lOUUJUM2RaalpCbnZWdVdRVAo1dzlsMlpHKzJSUXBlaDFVejAvVUZyeFpvNFQ4UzBnQ3lOT3MwWjB1Uk94THY0OUd0VzZ0bXc9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+kind: Secret
+metadata:
+  annotations:
+    cert-manager.io/alt-names: prof-stankin.ru
+    cert-manager.io/certificate-name: profstankin-tls
+    cert-manager.io/common-name: prof-stankin.ru
+    cert-manager.io/ip-sans: ""
+    cert-manager.io/issuer-group: cert-manager.io
+    cert-manager.io/issuer-kind: ClusterIssuer
+    cert-manager.io/issuer-name: letsencrypt-prod
+    cert-manager.io/uri-sans: ""
+  labels:
+    controller.cert-manager.io/fao: "true"
+  name: profstankin-tls
+  namespace: default
+apiVersion: v1
+data:
+  EOS_PASSWORD: Z3Vlc3Q=
+  EOS_USERNAME: Z3Vlc3Q=
+  POSTGRES_PASSWORD: cGFzcw==
+  SECRET_KEY: a2V5
+  SUPERTOKEN: ZXhhbXBsZXN1cGVydG9rZW4=
+kind: Secret
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: schedule-api:/Secret:default/schedule-api-secrets
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Secret","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"schedule-api:/Secret:default/schedule-api-secrets"},"name":"schedule-api-secrets","namespace":"default"},"stringData":{"EOS_PASSWORD":"guest","EOS_USERNAME":"guest","POSTGRES_PASSWORD":"pass","SECRET_KEY":"key","SUPERTOKEN":"examplesupertoken"},"type":"Opaque"}
+  name: schedule-api-secrets
+  namespace: default
+type: Opaque
+---
+apiVersion: v1
+data:
+  ca.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMwakNDQWJxZ0F3SUJBZ0lRWHdxTnR6elRuQ1A1SEd2MlVHNjV2VEFOQmdrcWhraUc5dzBCQVFzRkFEQUEKTUI0WERUSTJNREV3TkRFMU1UTXhNRm9YRFRJMk1EUXdOREUxTVRNeE1Gb3dBRENDQVNJd0RRWUpLb1pJaHZjTgpBUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTXRYTmxLZ1VIYkZhelUvRWZSU2IwVFlYcC9UOGI4U3NZbXdTN1RZClNDam1ZbWk1cXBtRDFRV2JRMWthdWtNUTFhZThocVVCNzEvREcwUEpKd3NHakZMakJlb0RxWjJsa1gwbVo3a2cKcFBuRmxwSVJQQ0FSK04zWjhQMkxGSTBCZ2VnbC9qNjRTRmtBZloyMkNzRzhDaE5vM0xUTXlIU3gxb2ZtU1BaawpUUWdiSmYwZWF6aXdsdTlPWmRtU3R4blBNVlZmWTg0TUxXc0hBZkowQlVzMTRKaHNrbDgzV1F5eUlmOE9FYi8xCk44K3hOaFNRdGgwOXVLSUVzTHRBR0VMMkN0TzhDcnJCYVJsaS8vS0lTVUhyU1lNNTdVL0lUV1lmR3c3OVJTN2wKQ3NPVnl2by9kTEhxOXd1N2txc0NLSDZvdVdaOHZtenJHSU00QUc0VysxVWE3d2tDQXdFQUFhTklNRVl3RGdZRApWUjBQQVFIL0JBUURBZ1dnTUF3R0ExVWRFd0VCL3dRQ01BQXdKZ1lEVlIwUkFRSC9CQnd3R29JWVlYQnBMblJsCmMzUXVjSEp2WmkxemRHRnVhMmx1TG5KMU1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQmQ3bEdCVnhzY1ZIeVUKdGlrZGJlSmlIS012RUxQdG9vM2xFVkR2ZGRkYmpFNUZUSXpLNjlMVHpKcHYrby9XRUtKZFg1UEVVcHJkLy8yVApPNkNrazdnak1lZ3pyTm56WkFmaStEbVJmWlNqNTRNdHUzbjJ5emFoU3hXcitKT2Q4OXdkZU9HOHpGcVNBMllHCkw0enRGUGp3YTRzWWE1eGF5RWFjWks5ZUNDc2xMUGFUK3hnTnNlVFR5R21vNGcyR1FraktRenFibnEwSVVzaFcKN2JZN2k1Z0ZSZ0VmSnFPSlI0TnVIalJIazBmcFV3aE5NcTdnOTdlOFRWMlNxZ0VKUU40WDJ5YnI2VFNEUHZXKwo5UlpSWTVFbEc4bUdBd3BNM0RjOFhnUDJ3WWx0NEF6Tkc4ZG5PU0hIem1nRTZzeGFnWVhNN0hsWUVpUjJvcUJYCmZMOHRxZUVyCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMwakNDQWJxZ0F3SUJBZ0lRWHdxTnR6elRuQ1A1SEd2MlVHNjV2VEFOQmdrcWhraUc5dzBCQVFzRkFEQUEKTUI0WERUSTJNREV3TkRFMU1UTXhNRm9YRFRJMk1EUXdOREUxTVRNeE1Gb3dBRENDQVNJd0RRWUpLb1pJaHZjTgpBUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTXRYTmxLZ1VIYkZhelUvRWZSU2IwVFlYcC9UOGI4U3NZbXdTN1RZClNDam1ZbWk1cXBtRDFRV2JRMWthdWtNUTFhZThocVVCNzEvREcwUEpKd3NHakZMakJlb0RxWjJsa1gwbVo3a2cKcFBuRmxwSVJQQ0FSK04zWjhQMkxGSTBCZ2VnbC9qNjRTRmtBZloyMkNzRzhDaE5vM0xUTXlIU3gxb2ZtU1BaawpUUWdiSmYwZWF6aXdsdTlPWmRtU3R4blBNVlZmWTg0TUxXc0hBZkowQlVzMTRKaHNrbDgzV1F5eUlmOE9FYi8xCk44K3hOaFNRdGgwOXVLSUVzTHRBR0VMMkN0TzhDcnJCYVJsaS8vS0lTVUhyU1lNNTdVL0lUV1lmR3c3OVJTN2wKQ3NPVnl2by9kTEhxOXd1N2txc0NLSDZvdVdaOHZtenJHSU00QUc0VysxVWE3d2tDQXdFQUFhTklNRVl3RGdZRApWUjBQQVFIL0JBUURBZ1dnTUF3R0ExVWRFd0VCL3dRQ01BQXdKZ1lEVlIwUkFRSC9CQnd3R29JWVlYQnBMblJsCmMzUXVjSEp2WmkxemRHRnVhMmx1TG5KMU1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQmQ3bEdCVnhzY1ZIeVUKdGlrZGJlSmlIS012RUxQdG9vM2xFVkR2ZGRkYmpFNUZUSXpLNjlMVHpKcHYrby9XRUtKZFg1UEVVcHJkLy8yVApPNkNrazdnak1lZ3pyTm56WkFmaStEbVJmWlNqNTRNdHUzbjJ5emFoU3hXcitKT2Q4OXdkZU9HOHpGcVNBMllHCkw0enRGUGp3YTRzWWE1eGF5RWFjWks5ZUNDc2xMUGFUK3hnTnNlVFR5R21vNGcyR1FraktRenFibnEwSVVzaFcKN2JZN2k1Z0ZSZ0VmSnFPSlI0TnVIalJIazBmcFV3aE5NcTdnOTdlOFRWMlNxZ0VKUU40WDJ5YnI2VFNEUHZXKwo5UlpSWTVFbEc4bUdBd3BNM0RjOFhnUDJ3WWx0NEF6Tkc4ZG5PU0hIem1nRTZzeGFnWVhNN0hsWUVpUjJvcUJYCmZMOHRxZUVyCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBeTFjMlVxQlFkc1ZyTlQ4UjlGSnZSTmhlbjlQeHZ4S3hpYkJMdE5oSUtPWmlhTG1xCm1ZUFZCWnREV1JxNlF4RFZwN3lHcFFIdlg4TWJROGtuQ3dhTVV1TUY2Z09wbmFXUmZTWm51U0NrK2NXV2toRTgKSUJINDNkbncvWXNValFHQjZDWCtQcmhJV1FCOW5iWUt3YndLRTJqY3RNeklkTEhXaCtaSTltUk5DQnNsL1I1cgpPTENXNzA1bDJaSzNHYzh4VlY5anpnd3Rhd2NCOG5RRlN6WGdtR3lTWHpkWkRMSWgvdzRSdi9VM3o3RTJGSkMyCkhUMjRvZ1N3dTBBWVF2WUswN3dLdXNGcEdXTC84b2hKUWV0Smd6bnRUOGhOWmg4YkR2MUZMdVVLdzVYSytqOTAKc2VyM0M3dVNxd0lvZnFpNVpueStiT3NZZ3pnQWJoYjdWUnJ2Q1FJREFRQUJBb0lCQVFDajU5SE8rcERCbkZMVgpvZGc4SS9LekFPSU5YVStCWUhVaGNxMGp3aTh3WUx5MGcrekRQK1FIVitjS3ZTT2xDYjNmTG5VdUx3Z2dIZW90ClVzaVk5NWRHL041NGlxay9mUVZ3WnZPMjQxeDRSVkFndjZuQ2hCb2g0aHFDbFloa1BQSFZDa01ObFlnanplUnoKcXhpeW4zdFR0L1FuL09ZY1FubVdKQWR1TE4xM0NOS21Ndnl6Y2RCVVpNdGFaT1d5YTZJVVJkNVNHYlg0eWZsbQpaV0FZenhuUEpDZkdYQ1JqWHF0ZjFPcTNEVytlVE1TZ2hHK0tNYWpTVnF2K1hCYlNuckx3dGVDVHdNUm01YkorCmpEUFdPM1YvYkx6dW9rYzdWWkI5ZlZUZjI4TFNRMXplMDdDVjgzbUs5NVpRS1dGSHlObXB4cVJUbkRlVjlYNUQKUTNHMEFUR0JBb0dCQVBMUTRENEphRzR5bGswVzhveDlDMFJYZy8vU3VkN1BmZWpISmFZVDhMbGxXT3diZ1dIeApEV0FtSCtXT1BidTZnUFhyNTArSzJHYVlmaE9lSURoVTVXQ0pBaFJyMjBUTmFCWmpEcE1oamMwU0hRKzRBamYzCmJBN3pKRUNTSzQxUkJ5QURTdFVyN1BaMWpGR1V0RXZ0Y29RMnFLNjBvVmhiN29wS1pDSDl0dTJ4QW9HQkFOWmgKb2hLVCtYdzgyMHloaVREcm1ubTEzcXhiWTNzZ0dtam1Fb1E2a3Z0YUIzVVROU0F1SlRZb3A4dllscGR6RHdDbApTNzNhNXBqbytrZ05PVy9BU3NMaUpvVmZzWTZZZUJGNXozYnB1dGlCd0xlUWY3Y3Jka2k0N1ZOc0FTeDRlUzlSCllSdlRRYkxZU2RCWWt5U1BCOGtqSVY2SGZiTG5WRGZ5YlFTb1c3VFpBb0dBVUw1V295cDd1SkZIMjdDeXpUYlQKcFZFNHlyd25KTWw0eEF4ZEg2SG4zYTZ1NkN5cFZJbFUrbEVUTUVHaGs2aU1NN3JUZTJiZldSYUNia0daMDBHZgoyUDhXV3ZZV3Z3VlRCSWJDRlBrR2IxZ0RvL043Z1dMY1l3aEZXTmVDZGdhb3lPTnZZZjJ1V2JKekM3bllUcHRTCkJsY3F0cFhJUlZxa3N3WFQwRjNQRTdFQ2dZQUtFTGx3VDl4RjFnR2gzbSszaVVoT2NKaU0xUm1kblV0QUk1VTQKK2hzT2pCS1BqNkJONjN5NXh6emhtRUN4eWFncHFwa2N4OXROMEpwM3FZOUp6T2gxci9LSkRvNGltTXdDWGdxOApsWXE5UVpKUHpBd0RDSnBjSGJxZTBSSlpDU3IvYXIyNWRiaSs4ZUs5VW50T0d4ME5kNFhJajJuNmJWd0o2R3J2CjdndW9PUUtCZ0JaOE5HeEdibjFZZDZyOEcxU3NaRDV5dGRVbW9PcHl1ekRoWmFYZzgxZzRZZjJtbjB2b2pleXQKcXV3SzRvQUx2OVZ1M0pZUDU2VXpDbUttVU1FUytTMmlITEFIK3pNYWtpcHAxTEJ6RXVqK041Y3lTdUpBRklYTQpaWXA0bC9KQUE2TlNlZ2R2ajU5UU1TZ2RKRUl3cDlNNTdabGphRXFsNnduR3YrV29Vb1hqCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+kind: Secret
+metadata:
+  annotations:
+    cert-manager.io/alt-names: api.prof-stankin.ru
+    cert-manager.io/certificate-name: schedule-api-tls
+    cert-manager.io/common-name: ""
+    cert-manager.io/ip-sans: ""
+    cert-manager.io/issuer-group: cert-manager.io
+    cert-manager.io/issuer-kind: ClusterIssuer
+    cert-manager.io/issuer-name: selfsigned-issuer
+    cert-manager.io/uri-sans: ""
+  labels:
+    controller.cert-manager.io/fao: "true"
+  name: schedule-api-tls
+  namespace: default

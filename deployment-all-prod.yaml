@@ -1,0 +1,1206 @@
+---
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: blog-admin:apps/Deployment:default/blog-admin
+      deployment.kubernetes.io/revision: "4"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-admin:apps/Deployment:default/blog-admin"},"name":"blog-admin","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"blog-admin"}},"template":{"metadata":{"labels":{"app":"blog-admin"}},"spec":{"containers":[{"image":"chouqe/blog-admin-frontend:latest","imagePullPolicy":"Always","name":"frontend","ports":[{"containerPort":80}]}]}}}}
+    name: blog-admin
+    namespace: default
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: blog-admin
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2026-01-10T16:47:42+03:00"
+        labels:
+          app: blog-admin
+      spec:
+        containers:
+        - image: chouqe/blog-admin-frontend:latest
+          imagePullPolicy: Always
+          name: frontend
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      deployment.kubernetes.io/revision: "30"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:apps/Deployment:default/blog-api"},"name":"blog-api","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"blog-api"}},"template":{"metadata":{"labels":{"app":"blog-api"}},"spec":{"containers":[{"envFrom":[{"configMapRef":{"name":"blog-api-config"}},{"secretRef":{"name":"blog-api-secrets"}}],"image":"chouqe/blog-api-application:latest","livenessProbe":{"httpGet":{"path":"/api/v1/categories/","port":7070},"initialDelaySeconds":15,"periodSeconds":20},"name":"application","ports":[{"containerPort":7070}],"readinessProbe":{"httpGet":{"path":"/api/v1/categories/","port":7070},"initialDelaySeconds":5,"periodSeconds":10},"volumeMounts":[{"mountPath":"/project/logs","name":"logs"}]},{"args":["run","--server.http.listen-addr=0.0.0.0:8989","/etc/alloy/config.alloy"],"image":"grafana/alloy:latest","name":"alloy","volumeMounts":[{"mountPath":"/etc/alloy","name":"alloy-conf"},{"mountPath":"/project/logs","name":"logs"}]}],"volumes":[{"emptyDir":{},"name":"logs"},{"configMap":{"name":"alloy-config-blog"},"name":"alloy-conf"}]}}}}
+    name: blog-api
+    namespace: default
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: blog-api
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2026-01-20T22:53:01+03:00"
+        labels:
+          app: blog-api
+      spec:
+        containers:
+        - envFrom:
+          - configMapRef:
+              name: blog-api-config
+          - secretRef:
+              name: blog-api-secrets
+          image: chouqe/blog-api-application:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/v1/categories/
+              port: 7070
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: application
+          ports:
+          - containerPort: 7070
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/v1/categories/
+              port: 7070
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /project/logs
+            name: logs
+        - args:
+          - run
+          - --server.http.listen-addr=0.0.0.0:8989
+          - /etc/alloy/config.alloy
+          image: grafana/alloy:latest
+          imagePullPolicy: Always
+          name: alloy
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/alloy
+            name: alloy-conf
+          - mountPath: /project/logs
+            name: logs
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: logs
+        - configMap:
+            defaultMode: 420
+            name: alloy-config-blog
+          name: alloy-conf
+      message: ReplicaSet "blog-api-7cb6c86cfb" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      deployment.kubernetes.io/revision: "12"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/Deployment:default/minio"},"name":"minio","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"minio"}},"template":{"metadata":{"labels":{"app":"minio"}},"spec":{"containers":[{"args":["server","/data","--console-address",":9001"],"env":[{"name":"MINIO_ROOT_USER","value":"minioadmin"},{"name":"MINIO_ROOT_PASSWORD","value":"minio123"},{"name":"MINIO_BROWSER","value":"on"},{"name":"MINIO_CONSOLE_ADDRESS","value":":9001"},{"name":"MINIO_SERVER_URL","value":"https://minio.prof-stankin.ru"}],"image":"minio/minio:latest","name":"minio","ports":[{"containerPort":9000},{"containerPort":9001}],"volumeMounts":[{"mountPath":"/data","name":"minio-data"}]}],"volumes":[{"hostPath":{"path":"/var/lib/minio","type":"DirectoryOrCreate"},"name":"minio-data"}]}}}}
+    name: minio
+    namespace: default
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: minio
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2026-01-18T18:37:06+03:00"
+        labels:
+          app: minio
+      spec:
+        containers:
+        - args:
+          - server
+          - /data
+          - --console-address
+          - :9001
+          env:
+          - name: MINIO_ROOT_USER
+            value: minioadmin
+          - name: MINIO_ROOT_PASSWORD
+            value: minio123
+          - name: MINIO_BROWSER
+            value: "on"
+          - name: MINIO_CONSOLE_ADDRESS
+            value: :9001
+          - name: MINIO_SERVER_URL
+            value: https://minio.prof-stankin.ru
+          image: minio/minio:latest
+          imagePullPolicy: Always
+          name: minio
+          ports:
+          - containerPort: 9000
+            protocol: TCP
+          - containerPort: 9001
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /data
+            name: minio-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - hostPath:
+            path: /var/lib/minio
+            type: DirectoryOrCreate
+          name: minio-data
+      message: ReplicaSet "minio-69b54c75b5" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      deployment.kubernetes.io/revision: "10"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"personal-app:apps/Deployment:default/personal-app"},"name":"personal-app","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"personal-app"}},"template":{"metadata":{"labels":{"app":"personal-app"}},"spec":{"containers":[{"envFrom":[{"configMapRef":{"name":"personal-app-config"}},{"secretRef":{"name":"personal-app-secrets"}}],"image":"chouqe/personal-app:latest","name":"app","ports":[{"containerPort":8080}]}]}}}}
+    name: personal-app
+    namespace: default
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: personal-app
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2026-01-20T22:31:00+03:00"
+        labels:
+          app: personal-app
+      spec:
+        containers:
+        - envFrom:
+          - configMapRef:
+              name: personal-app-config
+          - secretRef:
+              name: personal-app-secrets
+          image: chouqe/personal-app:latest
+          imagePullPolicy: Always
+          name: app
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+      message: ReplicaSet "personal-app-5b6dd75bd9" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      deployment.kubernetes.io/revision: "4"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-assistant2:apps/Deployment:default/prof-assistant2"},"name":"prof-assistant2","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"prof-assistant2"}},"template":{"metadata":{"labels":{"app":"prof-assistant2"}},"spec":{"containers":[{"envFrom":[{"configMapRef":{"name":"prof-bot-config"}},{"secretRef":{"name":"prof-bot-secrets"}}],"image":"chouqe/prof-assistant2:latest","name":"bot","volumeMounts":[{"mountPath":"/project/logs","name":"logs"}]},{"args":["run","--server.http.listen-addr=0.0.0.0:12345","/etc/alloy/config.alloy"],"image":"grafana/alloy:latest","name":"alloy","volumeMounts":[{"mountPath":"/etc/alloy","name":"alloy-conf"},{"mountPath":"/project/logs","name":"logs"}]}],"volumes":[{"emptyDir":{},"name":"logs"},{"configMap":{"name":"alloy-config-bot"},"name":"alloy-conf"}]}}}}
+    name: prof-assistant2
+    namespace: default
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: prof-assistant2
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2026-01-20T22:19:04+03:00"
+        labels:
+          app: prof-assistant2
+      spec:
+        containers:
+        - envFrom:
+          - configMapRef:
+              name: prof-bot-config
+          - secretRef:
+              name: prof-bot-secrets
+          image: chouqe/prof-assistant2:latest
+          imagePullPolicy: Always
+          name: bot
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /project/logs
+            name: logs
+        - args:
+          - run
+          - --server.http.listen-addr=0.0.0.0:12345
+          - /etc/alloy/config.alloy
+          image: grafana/alloy:latest
+          imagePullPolicy: Always
+          name: alloy
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/alloy
+            name: alloy-conf
+          - mountPath: /project/logs
+            name: logs
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: logs
+        - configMap:
+            defaultMode: 420
+            name: alloy-config-bot
+          name: alloy-conf
+      message: ReplicaSet "prof-assistant2-6595449bbd" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      deployment.kubernetes.io/revision: "10"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-front:apps/Deployment:default/profstankin-front"},"name":"profstankin-front","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"profstankin-front"}},"template":{"metadata":{"labels":{"app":"profstankin-front"}},"spec":{"containers":[{"env":[{"name":"VITE_SERVER_API","value":"https://api.prof-stankin.ru"}],"image":"chouqe/profstankin-front:4e96d7d","name":"frontend","ports":[{"containerPort":80}]}]}}}}
+    name: profstankin-front
+    namespace: default
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: profstankin-front
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2026-01-06T17:43:38+03:00"
+        labels:
+          app: profstankin-front
+      spec:
+        containers:
+        - env:
+          - name: VITE_SERVER_API
+            value: https://api.prof-stankin.ru
+          image: chouqe/profstankin-front:4e96d7d
+          imagePullPolicy: Always
+          name: frontend
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+      message: ReplicaSet "profstankin-front-7cb7cd569f" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      deployment.kubernetes.io/revision: "2"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/Deployment:default/redis-prof-assistant"},"name":"redis-prof-assistant","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"redis-prof-assistant"}},"template":{"metadata":{"labels":{"app":"redis-prof-assistant"}},"spec":{"containers":[{"image":"redis:7","name":"redis","ports":[{"containerPort":6379}]}]}}}}
+    name: redis-prof-assistant
+    namespace: default
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: redis-prof-assistant
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2026-01-06T17:43:38+03:00"
+        labels:
+          app: redis-prof-assistant
+      spec:
+        containers:
+        - image: redis:7
+          imagePullPolicy: IfNotPresent
+          name: redis
+          ports:
+          - containerPort: 6379
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+      message: ReplicaSet "redis-prof-assistant-5bcb5bf6bc" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      deployment.kubernetes.io/revision: "3"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/Deployment:default/redis-schedule-api"},"name":"redis-schedule-api","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"redis-schedule-api"}},"template":{"metadata":{"labels":{"app":"redis-schedule-api"}},"spec":{"containers":[{"image":"redis:7","name":"redis","ports":[{"containerPort":6379}]}]}}}}
+    name: redis-schedule-api
+    namespace: default
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: redis-schedule-api
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2026-01-16T00:29:42+03:00"
+        labels:
+          app: redis-schedule-api
+      spec:
+        containers:
+        - image: redis:7
+          imagePullPolicy: IfNotPresent
+          name: redis
+          ports:
+          - containerPort: 6379
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+      message: ReplicaSet "redis-schedule-api-854684cbc9" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      deployment.kubernetes.io/revision: "3"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"schedule-api:apps/Deployment:default/schedule-api"},"name":"schedule-api","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"schedule-api"}},"template":{"metadata":{"labels":{"app":"schedule-api"}},"spec":{"containers":[{"envFrom":[{"configMapRef":{"name":"schedule-api-config"}},{"secretRef":{"name":"schedule-api-secrets"}}],"image":"chouqe/schedule-api:latest","name":"api","ports":[{"containerPort":7070}]}]}}}}
+    name: schedule-api
+    namespace: default
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: schedule-api
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2026-01-19T23:56:52+03:00"
+        labels:
+          app: schedule-api
+      spec:
+        containers:
+        - envFrom:
+          - configMapRef:
+              name: schedule-api-config
+          - secretRef:
+              name: schedule-api-secrets
+          image: chouqe/schedule-api:latest
+          imagePullPolicy: Always
+          name: api
+          ports:
+          - containerPort: 7070
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+      message: ReplicaSet "schedule-api-6fdfc97585" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"StatefulSet","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/StatefulSet:default/postgres-personal"},"name":"postgres-personal","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"postgres-personal"}},"serviceName":"postgres-personal","template":{"metadata":{"labels":{"app":"postgres-personal"}},"spec":{"containers":[{"env":[{"name":"POSTGRES_PASSWORD","value":"pass"},{"name":"POSTGRES_USER","value":"user"},{"name":"POSTGRES_DB","value":"postgres"}],"image":"postgres:15","name":"postgres","ports":[{"containerPort":5432}],"volumeMounts":[{"mountPath":"/var/lib/postgresql/data","name":"data"}]}]}},"volumeClaimTemplates":[{"metadata":{"name":"data"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"2Gi"}}}}]}}
+    name: postgres-personal
+    namespace: default
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    podManagementPolicy: OrderedReady
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: postgres-personal
+    serviceName: postgres-personal
+    template:
+      metadata:
+        labels:
+          app: postgres-personal
+      spec:
+        containers:
+        - env:
+          - name: POSTGRES_PASSWORD
+            value: pass
+          - name: POSTGRES_USER
+            value: user
+          - name: POSTGRES_DB
+            value: postgres
+          image: postgres:15
+          imagePullPolicy: IfNotPresent
+          name: postgres
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    updateStrategy:
+      rollingUpdate:
+        partition: 0
+      type: RollingUpdate
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+        volumeMode: Filesystem
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: infrastructure-apps:apps/StatefulSet:default/postgres-prof-assistant
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"StatefulSet","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/StatefulSet:default/postgres-prof-assistant"},"name":"postgres-prof-assistant","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"postgres-prof-assistant"}},"serviceName":"postgres-prof-assistant","template":{"metadata":{"labels":{"app":"postgres-prof-assistant"}},"spec":{"containers":[{"env":[{"name":"POSTGRES_PASSWORD","value":"pass"},{"name":"POSTGRES_USER","value":"user"},{"name":"POSTGRES_DB","value":"postgres"}],"image":"postgres:15","name":"postgres","ports":[{"containerPort":5432}],"volumeMounts":[{"mountPath":"/var/lib/postgresql/data","name":"data"}]}]}},"volumeClaimTemplates":[{"metadata":{"name":"data"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"2Gi"}}}}]}}
+    name: postgres-prof-assistant
+    namespace: default
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    podManagementPolicy: OrderedReady
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: postgres-prof-assistant
+    serviceName: postgres-prof-assistant
+    template:
+      metadata:
+        labels:
+          app: postgres-prof-assistant
+      spec:
+        containers:
+        - env:
+          - name: POSTGRES_PASSWORD
+            value: pass
+          - name: POSTGRES_USER
+            value: user
+          - name: POSTGRES_DB
+            value: postgres
+          image: postgres:15
+          imagePullPolicy: IfNotPresent
+          name: postgres
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    updateStrategy:
+      rollingUpdate:
+        partition: 0
+      type: RollingUpdate
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+        volumeMode: Filesystem
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: infrastructure-apps:apps/StatefulSet:default/postgres-schedule-api
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"StatefulSet","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:apps/StatefulSet:default/postgres-schedule-api"},"name":"postgres-schedule-api","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"postgres-schedule-api"}},"serviceName":"postgres-schedule-api","template":{"metadata":{"labels":{"app":"postgres-schedule-api"}},"spec":{"containers":[{"env":[{"name":"POSTGRES_PASSWORD","value":"pass"},{"name":"POSTGRES_USER","value":"user"},{"name":"POSTGRES_DB","value":"postgres"}],"image":"postgres:15","name":"postgres","ports":[{"containerPort":5432}],"volumeMounts":[{"mountPath":"/var/lib/postgresql/data","name":"data"}]}]}},"volumeClaimTemplates":[{"metadata":{"name":"data"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"2Gi"}}}}]}}
+    name: postgres-schedule-api
+    namespace: default
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    podManagementPolicy: OrderedReady
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: postgres-schedule-api
+    serviceName: postgres-schedule-api
+    template:
+      metadata:
+        labels:
+          app: postgres-schedule-api
+      spec:
+        containers:
+        - env:
+          - name: POSTGRES_PASSWORD
+            value: pass
+          - name: POSTGRES_USER
+            value: user
+          - name: POSTGRES_DB
+            value: postgres
+          image: postgres:15
+          imagePullPolicy: IfNotPresent
+          name: postgres
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    updateStrategy:
+      rollingUpdate:
+        partition: 0
+      type: RollingUpdate
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+        volumeMode: Filesystem
+    updatedReplicas: 1
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: blog-admin:/Service:default/blog-admin-svc
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-admin:/Service:default/blog-admin-svc"},"name":"blog-admin-svc","namespace":"default"},"spec":{"ports":[{"port":80,"targetPort":80}],"selector":{"app":"blog-admin"}}}
+    name: blog-admin-svc
+    namespace: default
+  spec:
+    clusterIP: 10.43.143.122
+    clusterIPs:
+    - 10.43.143.122
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+    selector:
+      app: blog-admin
+    sessionAffinity: None
+    type: ClusterIP
+  spec:
+    clusterIP: 10.43.172.194
+    clusterIPs:
+    - 10.43.172.194
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 7070
+    selector:
+      app: blog-api
+    sessionAffinity: None
+    type: ClusterIP
+    clusterIP: 10.43.0.1
+    clusterIPs:
+    - 10.43.0.1
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 6443
+    sessionAffinity: None
+    type: ClusterIP
+  spec:
+    clusterIP: 10.43.134.174
+    clusterIPs:
+    - 10.43.134.174
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: api
+      port: 9000
+      protocol: TCP
+      targetPort: 9000
+    - name: console
+      port: 9001
+      protocol: TCP
+      targetPort: 9001
+    selector:
+      app: minio
+    sessionAffinity: None
+    type: ClusterIP
+  spec:
+    clusterIP: 10.43.18.89
+    clusterIPs:
+    - 10.43.18.89
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: personal-app
+    sessionAffinity: None
+    type: ClusterIP
+  spec:
+    clusterIP: 10.43.148.165
+    clusterIPs:
+    - 10.43.148.165
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      app: postgres-personal
+    sessionAffinity: None
+    type: ClusterIP
+  spec:
+    clusterIP: 10.43.81.10
+    clusterIPs:
+    - 10.43.81.10
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      app: postgres-prof-assistant
+    sessionAffinity: None
+    type: ClusterIP
+  spec:
+    clusterIP: 10.43.179.149
+    clusterIPs:
+    - 10.43.179.149
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      app: postgres-schedule-api
+    sessionAffinity: None
+    type: ClusterIP
+  spec:
+    clusterIP: 10.43.154.81
+    clusterIPs:
+    - 10.43.154.81
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+    selector:
+      app: profstankin-front
+    sessionAffinity: None
+    type: ClusterIP
+  spec:
+    clusterIP: 10.43.49.146
+    clusterIPs:
+    - 10.43.49.146
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 6379
+      protocol: TCP
+      targetPort: 6379
+    selector:
+      app: redis-prof-assistant
+    sessionAffinity: None
+    type: ClusterIP
+  spec:
+    clusterIP: 10.43.152.49
+    clusterIPs:
+    - 10.43.152.49
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 6379
+      protocol: TCP
+      targetPort: 6379
+    selector:
+      app: redis-schedule-api
+    sessionAffinity: None
+    type: ClusterIP
+  spec:
+    clusterIP: 10.43.75.254
+    clusterIPs:
+    - 10.43.75.254
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 7070
+    selector:
+      app: schedule-api
+    sessionAffinity: None
+    type: ClusterIP
+          url = "http://loki:3100/loki/api/v1/push"
+        }
+      }
+      local.file_match "logs" {
+        path_targets = [{"__address__" = "localhost", "filename" = "/project/logs/*.json"}]
+      }
+      loki.source.file "blog_logs" {
+        targets    = local.file_match.logs.targets
+        forward_to = [loki.write.local.receiver]
+      }
+  kind: ConfigMap
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: blog-api:/ConfigMap:default/alloy-config-blog
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"config.alloy":"logging {\n  level  = \"info\"\n  format = \"logfmt\"\n}\nloki.write \"local\" {\n  endpoint {\n    url = \"http://loki:3100/loki/api/v1/push\"\n  }\n}\nlocal.file_match \"logs\" {\n  path_targets = [{\"__address__\" = \"localhost\", \"filename\" = \"/project/logs/*.json\"}]\n}\nloki.source.file \"blog_logs\" {\n  targets    = local.file_match.logs.targets\n  forward_to = [loki.write.local.receiver]\n}\n"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:/ConfigMap:default/alloy-config-blog"},"name":"alloy-config-blog","namespace":"default"}}
+    name: alloy-config-blog
+    namespace: default
+- apiVersion: v1
+  data:
+    config.alloy: |
+      logging {
+        level  = "info"
+        format = "logfmt"
+      }
+      loki.write "local" {
+        endpoint {
+          url = "http://loki:3100/loki/api/v1/push"
+        }
+      }
+      local.file_match "logs" {
+        path_targets = [{"__address__" = "localhost", "filename" = "/project/logs/*.json"}]
+      }
+      loki.source.file "bot_logs" {
+        targets    = local.file_match.logs.targets
+        forward_to = [loki.write.local.receiver]
+      }
+  kind: ConfigMap
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: prof-assistant2:/ConfigMap:default/alloy-config-bot
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"config.alloy":"logging {\n  level  = \"info\"\n  format = \"logfmt\"\n}\nloki.write \"local\" {\n  endpoint {\n    url = \"http://loki:3100/loki/api/v1/push\"\n  }\n}\nlocal.file_match \"logs\" {\n  path_targets = [{\"__address__\" = \"localhost\", \"filename\" = \"/project/logs/*.json\"}]\n}\nloki.source.file \"bot_logs\" {\n  targets    = local.file_match.logs.targets\n  forward_to = [loki.write.local.receiver]\n}\n"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-assistant2:/ConfigMap:default/alloy-config-bot"},"name":"alloy-config-bot","namespace":"default"}}
+    name: alloy-config-bot
+    namespace: default
+- apiVersion: v1
+  data:
+    CORS_DOMAIN: https://admin.prof-stankin.ru,https://api-blog.prof-stankin.ru
+    INSPECT_TOKEN_URL: http://schedule-api-svc/api/v1/auth/inspect_token
+    JWT_ALGORITHM: HS256
+    JWT_SECRET_KEY: '!secret'
+    MINIO_ACCESS_KEY: minioadmin
+    MINIO_BASE_URL: https://minio.prof-stankin.ru
+    MINIO_BUCKET_NAME: blog-images
+    MINIO_ENDPOINT: minio.prof-stankin.ru
+    MINIO_SECRET_KEY: minio123
+    MINIO_SECURE: "True"
+    POSTGRES_DB: postgres
+    POSTGRES_HOST: postgres-prof-assistant
+    POSTGRES_PORT: "5432"
+    POSTGRES_USER: user
+    SERVICE_NAME: blog_api
+  kind: ConfigMap
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: blog-api:/ConfigMap:default/blog-api-config
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"CORS_DOMAIN":"https://admin.prof-stankin.ru,https://api-blog.prof-stankin.ru","INSPECT_TOKEN_URL":"http://schedule-api-svc/api/v1/auth/inspect_token","JWT_ALGORITHM":"HS256","MINIO_ACCESS_KEY":"minioadmin","MINIO_BASE_URL":"https://minio.prof-stankin.ru","MINIO_BUCKET_NAME":"blog-images","MINIO_ENDPOINT":"minio.prof-stankin.ru","MINIO_SECRET_KEY":"minio123","MINIO_SECURE":"True","POSTGRES_DB":"postgres","POSTGRES_HOST":"postgres-prof-assistant","POSTGRES_PORT":"5432","POSTGRES_USER":"user","SERVICE_NAME":"blog_api"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:/ConfigMap:default/blog-api-config"},"name":"blog-api-config","namespace":"default"}}
+    name: blog-api-config
+    namespace: default
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBdjCCAR2gAwIBAgIBADAKBggqhkjOPQQDAjAjMSEwHwYDVQQDDBhrM3Mtc2Vy
+      dmVyLWNhQDE3Njc1MzYxMTQwHhcNMjYwMTA0MTQxNTE0WhcNMzYwMTAyMTQxNTE0
+      WjAjMSEwHwYDVQQDDBhrM3Mtc2VydmVyLWNhQDE3Njc1MzYxMTQwWTATBgcqhkjO
+      PQIBBggqhkjOPQMBBwNCAAToQMNpnDbEF3RACKQ1QU6/lquWCjjEFsIcdI2mKANp
+      ITuJQmn2n+rX9irF2zBvsUao+7tVjNsQwWlW+AabsSd4o0IwQDAOBgNVHQ8BAf8E
+      BAMCAqQwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUZfMdvVAiU2MYwicQG90M
+      4f5KAWUwCgYIKoZIzj0EAwIDRwAwRAIgIW0g74Qcwf41n8SOTYrKqS5pILMNEIgM
+      GXERmZjCnY8CIEUwk51s/Jnza6jpAo2Dngwa9L3xi1bjJvq5/9bcQs8n
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    name: kube-root-ca.crt
+    namespace: default
+- apiVersion: v1
+  data:
+    API_COOKIE_PATH: /
+    API_COOKIE_SECURE: "false"
+    API_CORS_ORIGINS: https://personal.prof-stankin.ru,https://admin.prof-stankin.ru
+    AUTH_ALGORITHM: HS256
+    AUTH_REFRESH_TOKEN_EXPIRATION_TIME: "30"
+    AUTH_TOKEN_EXPIRATION_TIME: "60"
+    POSTGRES_DATABASE: postgres
+    POSTGRES_HOST: postgres-personal
+    POSTGRES_MIGRATIONS_DIR: migrations
+    POSTGRES_PORT: "5432"
+    POSTGRES_SSLMODE: disable
+    POSTGRES_USER: user
+    S3_BASE_URL: https://minio.prof-stankin.ru
+    S3_BUCKET_NAME: personal-images
+    S3_ENDPOINT: minio:9000
+    S3_SECURE: "false"
+    SERVER_HOST: 0.0.0.0
+    SERVER_PORT: "8080"
+  kind: ConfigMap
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: personal-app:/ConfigMap:default/personal-app-config
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"API_COOKIE_PATH":"/","API_COOKIE_SECURE":"false","API_CORS_ORIGINS":"https://personal.prof-stankin.ru,https://admin.prof-stankin.ru","AUTH_ALGORITHM":"HS256","AUTH_REFRESH_TOKEN_EXPIRATION_TIME":"30","AUTH_TOKEN_EXPIRATION_TIME":"60","POSTGRES_DATABASE":"postgres","POSTGRES_HOST":"postgres-personal","POSTGRES_MIGRATIONS_DIR":"migrations","POSTGRES_PORT":"5432","POSTGRES_SSLMODE":"disable","POSTGRES_USER":"user","S3_BASE_URL":"https://minio.prof-stankin.ru","S3_BUCKET_NAME":"personal-images","S3_ENDPOINT":"minio:9000","S3_SECURE":"false","SERVER_HOST":"0.0.0.0","SERVER_PORT":"8080"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"personal-app:/ConfigMap:default/personal-app-config"},"name":"personal-app-config","namespace":"default"}}
+    name: personal-app-config
+    namespace: default
+- apiVersion: v1
+  data:
+    ALLOWED_CHANNEL_ID: "-1003468348519"
+    POSTGRES_DB: postgres
+    POSTGRES_HOST: postgres-prof-assistant
+    POSTGRES_PASSWORD: pass
+    POSTGRES_PORT: "5432"
+    POSTGRES_USER: user
+    REDIS_HOST: redis-prof-assistant
+    REDIS_PORT: "6379"
+    SCHEDULE_API_URL: http://schedule-api-svc:80
+  kind: ConfigMap
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: prof-assistant2:/ConfigMap:default/prof-bot-config
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"ALLOWED_CHANNEL_ID":"-1003468348519","POSTGRES_DB":"postgres","POSTGRES_HOST":"postgres-prof-assistant","POSTGRES_PASSWORD":"pass","POSTGRES_PORT":"5432","POSTGRES_USER":"user","REDIS_HOST":"redis-prof-assistant","REDIS_PORT":"6379","SCHEDULE_API_URL":"http://schedule-api-svc:80"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-assistant2:/ConfigMap:default/prof-bot-config"},"name":"prof-bot-config","namespace":"default"}}
+    name: prof-bot-config
+    namespace: default
+- apiVersion: v1
+  data:
+    ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+    ALGORITHM: HS256
+    CORS_ORIGINS: https://prof-stankin.ru,https://admin.prof-stankin.ru
+    DEBUG: "False"
+    EOS_SCHEDULE_CHECK_TIME: "03:00"
+    EOS_URL: https://edu.stankin.ru
+    POSTGRES_DB: postgres
+    POSTGRES_HOST: postgres-schedule-api
+    POSTGRES_PORT: "5432"
+    POSTGRES_USER: user
+    PYTHONPATH: /project/app
+    REDIS_DB: "0"
+    REDIS_HOST: redis-schedule-api
+    REDIS_PORT: "6379"
+  kind: ConfigMap
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: schedule-api:/ConfigMap:default/schedule-api-config
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"ACCESS_TOKEN_EXPIRE_MINUTES":"60","ALGORITHM":"HS256","DEBUG":"False","EOS_SCHEDULE_CHECK_TIME":"03:00","EOS_URL":"https://edu.stankin.ru","POSTGRES_DB":"postgres","POSTGRES_HOST":"postgres-schedule-api","POSTGRES_PORT":"5432","POSTGRES_USER":"user","PYTHONPATH":"/project/app","REDIS_DB":"0","REDIS_HOST":"redis-schedule-api","REDIS_PORT":"6379"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"schedule-api:/ConfigMap:default/schedule-api-config"},"name":"schedule-api-config","namespace":"default"}}
+    name: schedule-api-config
+    namespace: default
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: blog-admin:networking.k8s.io/Ingress:default/blog-admin-ingress
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-admin:networking.k8s.io/Ingress:default/blog-admin-ingress","cert-manager.io/cluster-issuer":"letsencrypt-prod","kubernetes.io/ingress.class":"traefik"},"name":"blog-admin-ingress","namespace":"default"},"spec":{"ingressClassName":"traefik","rules":[{"host":"admin.prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"blog-admin-svc","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["admin.prof-stankin.ru"],"secretName":"blog-admin-tls"}]}}
+      kubernetes.io/ingress.class: traefik
+      updated-at: "1767711423"
+    name: blog-admin-ingress
+    namespace: default
+  spec:
+    ingressClassName: traefik
+    rules:
+    - host: admin.prof-stankin.ru
+      http:
+        paths:
+        - backend:
+            service:
+              name: blog-admin-svc
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+    tls:
+    - hosts:
+      - admin.prof-stankin.ru
+      secretName: blog-admin-tls
+        {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:networking.k8s.io/Ingress:default/blog-api-ingress","cert-manager.io/cluster-issuer":"letsencrypt-prod","kubernetes.io/ingress.class":"traefik","traefik.ingress.kubernetes.io/router.middlewares":"default-blog-api-cors@kubernetescrd","traefik.ingress.kubernetes.io/service.serversscheme":"http"},"name":"blog-api-ingress","namespace":"default"},"spec":{"ingressClassName":"traefik","rules":[{"host":"api-blog.prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"blog-api-svc","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["api-blog.prof-stankin.ru"],"secretName":"blog-api-tls"}]}}
+      kubernetes.io/ingress.class: traefik
+      traefik.ingress.kubernetes.io/router.middlewares: default-blog-api-cors@kubernetescrd
+      traefik.ingress.kubernetes.io/service.serversscheme: http
+    name: blog-api-ingress
+    namespace: default
+  spec:
+    ingressClassName: traefik
+    rules:
+    - host: api-blog.prof-stankin.ru
+      http:
+        paths:
+        - backend:
+            service:
+              name: blog-api-svc
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+    tls:
+    - hosts:
+      - api-blog.prof-stankin.ru
+      secretName: blog-api-tls
+        {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"infrastructure-apps:networking.k8s.io/Ingress:default/minio-api-ingress","cert-manager.io/cluster-issuer":"letsencrypt-prod","kubernetes.io/ingress.class":"traefik"},"name":"minio-api-ingress","namespace":"default"},"spec":{"ingressClassName":"traefik","rules":[{"host":"minio.prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"minio","port":{"number":9000}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["minio.prof-stankin.ru"],"secretName":"minio-api-tls-prod"}]}}
+      kubernetes.io/ingress.class: traefik
+    name: minio-api-ingress
+    namespace: default
+  spec:
+    ingressClassName: traefik
+    rules:
+    - host: minio.prof-stankin.ru
+      http:
+        paths:
+        - backend:
+            service:
+              name: minio
+              port:
+                number: 9000
+          path: /
+          pathType: Prefix
+    tls:
+    - hosts:
+      - minio.prof-stankin.ru
+      secretName: minio-api-tls-prod
+        {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"personal-app:networking.k8s.io/Ingress:default/personal-app","cert-manager.io/cluster-issuer":"letsencrypt-prod","traefik.ingress.kubernetes.io/router.entrypoints":"websecure","traefik.ingress.kubernetes.io/router.middlewares":"default-blog-api-cors@kubernetescrd","traefik.ingress.kubernetes.io/router.tls":"true"},"name":"personal-app","namespace":"default"},"spec":{"rules":[{"host":"api-personal.prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"personal-app","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["api-personal.prof-stankin.ru"],"secretName":"personal-app-tls"}]}}
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.middlewares: default-blog-api-cors@kubernetescrd
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    name: personal-app
+    namespace: default
+  spec:
+    ingressClassName: traefik
+    rules:
+    - host: api-personal.prof-stankin.ru
+      http:
+        paths:
+        - backend:
+            service:
+              name: personal-app
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+    tls:
+    - hosts:
+      - api-personal.prof-stankin.ru
+      secretName: personal-app-tls
+        {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-front:networking.k8s.io/Ingress:default/profstankin-ingress","cert-manager.io/cluster-issuer":"letsencrypt-prod","kubernetes.io/ingress.class":"traefik"},"name":"profstankin-ingress","namespace":"default"},"spec":{"ingressClassName":"traefik","rules":[{"host":"prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"profstankin-front-svc","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["prof-stankin.ru"],"secretName":"profstankin-tls"}]}}
+      kubernetes.io/ingress.class: traefik
+    name: profstankin-ingress
+    namespace: default
+  spec:
+    ingressClassName: traefik
+    rules:
+    - host: prof-stankin.ru
+      http:
+        paths:
+        - backend:
+            service:
+              name: profstankin-front-svc
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+    tls:
+    - hosts:
+      - prof-stankin.ru
+      secretName: profstankin-tls
+        {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"schedule-api:networking.k8s.io/Ingress:default/schedule-api-ingress","cert-manager.io/cluster-issuer":"selfsigned-issuer","kubernetes.io/ingress.class":"traefik"},"name":"schedule-api-ingress","namespace":"default"},"spec":{"ingressClassName":"traefik","rules":[{"host":"api.prof-stankin.ru","http":{"paths":[{"backend":{"service":{"name":"schedule-api-svc","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["api.prof-stankin.ru"],"secretName":"schedule-api-tls"}]}}
+      kubernetes.io/ingress.class: traefik
+    name: schedule-api-ingress
+    namespace: default
+  spec:
+    ingressClassName: traefik
+    rules:
+    - host: api.prof-stankin.ru
+      http:
+        paths:
+        - backend:
+            service:
+              name: schedule-api-svc
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+    tls:
+    - hosts:
+      - api.prof-stankin.ru
+      secretName: schedule-api-tls
+      cert-manager.io/alt-names: admin.prof-stankin.ru
+      cert-manager.io/certificate-name: blog-admin-tls
+      cert-manager.io/common-name: admin.prof-stankin.ru
+      cert-manager.io/ip-sans: ""
+      cert-manager.io/issuer-group: cert-manager.io
+      cert-manager.io/issuer-kind: ClusterIssuer
+      cert-manager.io/issuer-name: letsencrypt-prod
+      cert-manager.io/uri-sans: ""
+    labels:
+      controller.cert-manager.io/fao: "true"
+    name: blog-admin-tls
+    namespace: default

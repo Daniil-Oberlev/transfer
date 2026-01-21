@@ -354,9 +354,9 @@ kind: Deployment
 metadata:
   annotations:
     argocd.argoproj.io/tracking-id: prof-front:apps/Deployment:default/profstankin-front
-    deployment.kubernetes.io/revision: "10"
+    deployment.kubernetes.io/revision: "32"
     kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-front:apps/Deployment:default/profstankin-front"},"name":"profstankin-front","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"profstankin-front"}},"template":{"metadata":{"labels":{"app":"profstankin-front"}},"spec":{"containers":[{"env":[{"name":"VITE_SERVER_API","value":"https://api.prof-stankin.ru"}],"image":"chouqe/profstankin-front:4e96d7d","name":"frontend","ports":[{"containerPort":80}]}]}}}}
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-front:apps/Deployment:default/profstankin-front"},"name":"profstankin-front","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"profstankin-front"}},"template":{"metadata":{"labels":{"app":"profstankin-front"}},"spec":{"containers":[{"env":[{"name":"VITE_SERVER_API","valueFrom":{"configMapKeyRef":{"key":"VITE_SERVER_API","name":"front-config-c48dgmdtk6"}}}],"image":"chouqe/profstankin-front:a4a868b","name":"frontend","ports":[{"containerPort":80}]}]}}}}
   name: profstankin-front
   namespace: default
 spec:
@@ -381,8 +381,11 @@ spec:
       containers:
       - env:
         - name: VITE_SERVER_API
-          value: https://api.prof-stankin.ru
-        image: chouqe/profstankin-front:4e96d7d
+          valueFrom:
+            configMapKeyRef:
+              key: VITE_SERVER_API
+              name: front-config-c48dgmdtk6
+        image: chouqe/profstankin-front:a4a868b
         imagePullPolicy: Always
         name: frontend
         ports:
@@ -1154,6 +1157,18 @@ metadata:
     kubectl.kubernetes.io/last-applied-configuration: |
       {"apiVersion":"v1","data":{"CORS_DOMAIN":"https://admin.prof-stankin.ru,https://api-blog.prof-stankin.ru","INSPECT_TOKEN_URL":"http://schedule-api-svc/api/v1/auth/inspect_token","JWT_ALGORITHM":"HS256","MINIO_ACCESS_KEY":"minioadmin","MINIO_BASE_URL":"https://minio.prof-stankin.ru","MINIO_BUCKET_NAME":"blog-images","MINIO_ENDPOINT":"minio.prof-stankin.ru","MINIO_SECRET_KEY":"minio123","MINIO_SECURE":"True","POSTGRES_DB":"postgres","POSTGRES_HOST":"postgres-prof-assistant","POSTGRES_PORT":"5432","POSTGRES_USER":"user","SERVICE_NAME":"blog_api"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"blog-api:/ConfigMap:default/blog-api-config"},"name":"blog-api-config","namespace":"default"}}
   name: blog-api-config
+  namespace: default
+---
+apiVersion: v1
+data:
+  VITE_SERVER_API: https://api-blog.prof-stankin.ru
+kind: ConfigMap
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: prof-front:/ConfigMap:default/front-config-c48dgmdtk6
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"VITE_SERVER_API":"https://api-blog.prof-stankin.ru"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"prof-front:/ConfigMap:default/front-config-c48dgmdtk6"},"name":"front-config-c48dgmdtk6","namespace":"default"}}
+  name: front-config-c48dgmdtk6
   namespace: default
 ---
 apiVersion: v1
